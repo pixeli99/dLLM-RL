@@ -3,7 +3,7 @@
 
 ## Features 
 
-- Model Support: SDAR, Dream, LLaDA, Diffu-Coders
+- Model Support: SDAR, Dream, LLaDA, Diffu-Coder
 - Inference: KV-cache, jetengine (based on nano-vllm), different sampling strategies, support multi-nodes
 - RL: TraceRL, PPO, Coupled RL, random masking RL, accelerated sampling, support multi-nodes
 - SFT: flash block SFT, semi-AR SFT, random masking SFT
