@@ -1,7 +1,7 @@
 # dllm-rl
 
 
-## Features 
+## 🌱 Features 
 
 - Model Support: SDAR, Dream, LLaDA, Diffu-Coder
 - Inference: KV-cache, jetengine (based on nano-vllm), different sampling strategies, support multi-nodes
