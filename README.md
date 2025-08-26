@@ -1,4 +1,4 @@
-# dllm-rl
+# DLLM-RL
 
 
 ## 🌱 Features 
