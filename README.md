@@ -14,5 +14,3 @@ pip install --no-cache-dir \
 flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
 pip install -r requirements.txt
 ```
-
-You can also install [FlashAttention](https://github.com/Dao-AILab/flash-attention) based on your version of PyTorch and CUDA.
