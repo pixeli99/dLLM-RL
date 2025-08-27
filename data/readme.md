@@ -48,6 +48,7 @@ For different test methods, we have different entries. For `function` format:
 ```python
 assert my_sum(1, 2) == 3
 ```
+5. `Prefix`: for `MBPP` and `HumanEval`, we use the prefix provided in their original data.
 
 for `stdio` format:
 
