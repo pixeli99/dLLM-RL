@@ -1,6 +1,6 @@
 # Dataset
 
-This is the introduction of the data we used, and how you can modify your own evaluation and training data.
+This is the introduction of the data we used, and how you can download, preprocess, and modify your own evaluation and training data.
 ## Download
 
 Download data through
