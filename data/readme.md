@@ -1,7 +1,7 @@
 # Dataset
 
 This is the introduction of the data we used, and how you can download, preprocess, and modify your own evaluation and training data.
-## Download
+## Download Original Data
 
 Download data through
 ```bash
