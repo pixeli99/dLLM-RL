@@ -33,13 +33,13 @@ Your JSON dataset must contain the following necessary fields to perform both op
 2. `test_time_limit`: The time limit for each task's execution, usually set as 1.
 3. `test_method`: `function` or `stdio` for each task.
 
-For different test methods, we have different entries. For function
+For different test methods, we have different entries. For `function` format:
 4. `test_list` use `assert` to test, example:
 ```python
 assert my_sum(1, 2) == 3
 ```
 
-for stdio format:
+for `stdio` format:
 4. `test_input` and `test_output` are two lists of the same length, where each corresponding element represents the Stdio-format input and output, respectively, for example:
 ```python
 "test_input": [
