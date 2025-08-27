@@ -13,8 +13,10 @@ python download_data.py --dataset LiveBench
 python download_data.py --dataset MBPP
 python download_data.py --dataset HumanEval
 # download the training data
+## rl data
 python download_data.py --dataset MATH_train
 python download_data.py --dataset PrimeIntellect
+## sft data
 python download_data.py --dataset demon_openr1math
 ```
 
