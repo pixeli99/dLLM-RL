@@ -47,7 +47,7 @@ for stdio format:
   "3\n4\n"
 ],
 "test_output": [
-  3\n",
+  "3\n",
   "7\n"
 ]
 ```
