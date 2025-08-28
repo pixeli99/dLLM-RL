@@ -23,7 +23,7 @@ pip install -r requirements.txt
 ```
 
 
-## Data
+## ⚙️ Data
 
 You can navigate to `./data` to download datasets for evaluation and training, for example as follows. In that directory, you will also find detailed instructions on how to modify your own dataset.
 ```bash
@@ -35,7 +35,7 @@ cd ..
 
 
 
-## Inference & Evaluations
+## 📊 Inference & Evaluations
 
 After downloading the data, take the SADR model as an example. You can set the configurations in `configs/sdar_eval.yaml` and run the following commands to perform inference with different sampling strategies.
 ```bash
