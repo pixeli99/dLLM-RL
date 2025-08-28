@@ -21,3 +21,13 @@ pip install --no-cache-dir \
 flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
 pip install -r requirements.txt
 ```
+
+
+## Inference
+
+After downloading the data, you can set configurations `configs/sdar_eval.yaml` in and run following commands to do inference with different sampling strategies.
+```bash
+python eval.py config=configs/sdar_eval.yaml
+```
+
+
