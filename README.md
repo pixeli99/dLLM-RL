@@ -27,8 +27,10 @@ pip install -r requirements.txt
 
 You can navigate to `./data` to download datasets for evaluation and training, for example as follows. In that directory, you will also find detailed instructions on how to modify your own dataset.
 ```bash
+cd data
 python download_data.py --dataset MATH500
 python download_data.py --dataset MATH_train
+cd ..
 ```
 
 
