@@ -43,7 +43,7 @@ python eval.py config=configs/sdar_eval.yaml
 ```
 Use `sdar_eval.yaml` for SDAR models' inference, `dream_eval.yaml` for Dream and Diffu-Coder, and `llada_eval.yaml` for LLaDA and MMaDA. Instructions on how to set the configurations are provided in the corresponding configuration files.  
 We support both general tasks and coding tasks (including automated execution of code) in evaluation.  
-You can also perform inference across multiple nodes using `multinode_eval.py` with the same configuration files.  
+You can also perform inference across multiple nodes using `multinode_eval.py` with the same configuration files, with only minor modifications as instructed in the configuration files.
 In multi-node setup, the first node controls the others. You can simply run  
 `python multinode_eval.py config=configs/sdar_eval.yaml` on the first node, or submit the following as the entry command for a job:
 
@@ -53,5 +53,13 @@ if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then
 else
     exec tail -f /dev/null
 fi
+
+
+
+## 🔧 Reinforcement Learning
+
+## 🔧 Supervised Finetuning
+
+
 
 
