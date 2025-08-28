@@ -62,13 +62,25 @@ fi
 
 ```bash
 accelerate launch \
+  --num_machines 1 \
+  --machine_rank 0 \
+  --main_process_ip 127.0.0.1 \
+  --main_process_port 8888 \
+  --config_file accelerate_configs/1_node_8_gpus_deepspeed_zero3.yaml \
+  train/sft_sdar.py \
+  config=configs/sft_sdar.yaml
+```
+
+
+```bash
+accelerate launch \
   --num_machines $MLP_WORKER_NUM \
   --machine_rank $MLP_ROLE_INDEX \
   --main_process_ip $MLP_WORKER_0_HOST \
   --main_process_port $MLP_WORKER_0_PORT \
   --config_file accelerate_configs/2_node_8_gpus_deepspeed_zero3.yaml \
-  train/sft_dream.py \
-  config=configs/sft_dream.yaml
+  train/sft_sdar.py \
+  config=configs/sft_sdar.yaml
 ```
 
 
