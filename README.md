@@ -23,6 +23,16 @@ pip install -r requirements.txt
 ```
 
 
+## Data
+
+You can navigate to `./data` to download datasets for evaluation and training, for example as follows. In that directory, you will also find detailed instructions on how to modify your own dataset.
+```bash
+python download_data.py --dataset MATH500
+python download_data.py --dataset MATH_train
+```
+
+
+
 ## Inference & Evaluations
 
 After downloading the data, take the SADR model as an example. You can set the configurations in `configs/sdar_eval.yaml` and run the following commands to perform inference with different sampling strategies.
@@ -31,6 +41,15 @@ python eval.py config=configs/sdar_eval.yaml
 ```
 Use `sdar_eval.yaml` for SDAR models' inference, `dream_eval.yaml` for Dream and Diffu-Coder, and `llada_eval.yaml` for LLaDA and MMaDA. Instructions on how to set the configurations are provided in the corresponding configuration files.  
 We support both general tasks and coding tasks (including automated execution of code) in evaluation.  
-You can also perform inference across multiple nodes using `multinode_eval.py` with the same configuration files.
+You can also perform inference across multiple nodes using `multinode_eval.py` with the same configuration files.  
+In multi-node setup, the first node controls the others. You can simply run  
+`python multinode_eval.py config=configs/sdar_eval.yaml` on the first node, or submit the following as the entry command for a job:
+
+```bash
+if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then   
+    python multinode_eval.py config=configs/sdar_eval.yaml
+else
+    exec tail -f /dev/null
+fi
 
 
