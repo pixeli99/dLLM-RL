@@ -58,6 +58,14 @@ fi
 
 ## 🔧 Reinforcement Learning
 
+```bash
+if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then   
+    python multinode_rl.py config=configs/multinode_rl_dream.yaml
+else
+    exec tail -f /dev/null
+fi
+```
+
 ## 🔧 Supervised Finetuning
 
 ```bash
