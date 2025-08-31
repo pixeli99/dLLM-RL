@@ -57,6 +57,9 @@ fi
 
 
 ## 🔧 Reinforcement Learning
+```bash
+python rl.py config=configs/rl_sdar.yaml
+```
 
 ```bash
 if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then   
