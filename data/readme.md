@@ -24,7 +24,7 @@ python download_data.py --dataset demon_openr1math
 
 ## Preprocess the SFT data
 
-RL data can be used directly, but you should preprocess the SFT data `demon_openr1math` first by `preprocess.ipynb`.
+RL data can be used directly, but you should preprocess the SFT data (such like `demon_openr1math`, rl data is not needed) first by `preprocess_sft.ipynb`.
 
 
 
