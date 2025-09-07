@@ -1,5 +1,5 @@
 experiment:
-    project: "llada_eval"
+    project: "llada_eval" # need to be same of this file name
     num_node: 1 # the number of machines you have
     node_index: 0 # no need to change
 
