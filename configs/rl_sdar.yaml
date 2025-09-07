@@ -50,7 +50,7 @@ execute:
 
 training:
     gradient_checkpointing_enable: True
-    gradient_accumulation_steps: 8
+    gradient_accumulation_steps: 32
     batch_size_lm: 1
     mixed_precision: "bf16"
     enable_tf32: True
