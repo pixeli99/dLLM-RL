@@ -17,7 +17,7 @@ For TraDo and SDAR models, use `sft_sdar.yaml`. For dream and diffu-coder, use `
 
 
 
-## How to modify? Some tips:
+## Create your own configs:
 
 Keep `experiment.project` same as the corresponding file name. You can first try some related example configs to get familiar with.
 
