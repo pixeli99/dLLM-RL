@@ -41,7 +41,7 @@ We also support coding rl, see an example script `rl_sdar_code.yaml`.
 
 ## Main required fields:
 
-The model name, dataset to eval on or train on,  the number of nodes you have (corresponding deepspeed config).
+The model name, dataset to eval on or train on (and the data type, math or code),  the number of nodes you have (corresponding deepspeed config).
 
 
 
