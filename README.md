@@ -19,6 +19,10 @@ Tired of playing with LLMs? It’s time to try **diffusion language models**! Ex
 
 
 
+## 📰 Latest Updates
+
+
+
 ## 🚀 Quick Start
 
 
@@ -103,6 +107,18 @@ accelerate launch \
   train/sft_sdar.py \
   config=configs/sft_sdar.yaml
 ```
+
+## 📖 Citation
+
+## 🤝 Acknowledgement
+
+
+## 💬 Discussion
+
+Please do not hesitate to report any issues or difficulties you encounter.
+
+
+
 
 
 
