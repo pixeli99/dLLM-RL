@@ -1,0 +1,60 @@
+experiment:
+    project: "sdar_eval"
+    num_node: 1
+    node_index: 0
+
+# only need to be set when using multi-nodes
+system:
+    HTTP_PROXY: "http://100.68.168.184:3128"
+    HF_HOME: "/data_storage/wyj/systems/huggingface"
+    env_name: "CURE"
+    envs_dir: "/data_storage/wyj/systems/envs"
+    base_dir: "/data_storage/wyj/DLM/DLLM-RL"
+
+
+
+
+model: "/data_storage/wyj/DLM/DLLM-RL/multinode_rl_sdar/ckpt/epoch-5"
+model_base: "sdar"
+
+# "/data_storage/wyj/systems/huggingface/hub/models--JetLM--SDAR-8B-Chat/snapshots/de54a3350737454faabc3ddb40b8119866cc6ebd"
+# "/data_storage/wyj/systems/huggingface/hub/models--JetLM--SDAR-4B-Chat/snapshots/824f7ab513778bd93ce9f0f9039b9ee56b23c250"
+# "/data_storage/wyj/systems/huggingface/hub/models--JetLM--SDAR-1.7B-Chat/snapshots/553d10acb7a3e09fec332c38cfd5610811f27776"
+# "/data_storage/wyj/DLM/DLLM-RL/sft_sdar/ckpt/optimized_long0"
+# "/data_storage/wyj/DLM/DLLM-RL/multinode_rl_sdar/ckpt/epoch-60"
+# "/data_storage/wyj/DLM/mmada/sdar_multinode_ppo/ckpt/optimized2"
+# "/data_storage/wyj/DLM/mmada/sdar_multinode_train1/ckpt/optimized6"
+
+# "/data_storage/wyj/DLM/mmada/sdar_multinode_train1/ckpt/optimized5_1"
+# "/data_storage/wyj/DLM/DLLM-RL/multinode_rl_sdar1/ckpt/8bmathcheck"
+# "/data_storage/wyj/DLM/mmada/sdar_multinode_ppo/ckpt/4bmathcheck"
+
+# "/data_storage/wyj/DLM/DLLM-RL/multinode_rl_sdar1/ckpt/8bcodecheck" 8b
+# "/data_storage/wyj/DLM/DLLM-RL/multinode_rl_sdar/ckpt/4bcodecheck" 4b
+
+# "/data_storage/wyj/DLM/DLLM-RL/multinode_rl_sdar1/ckpt/8bfinal"
+# "/data_storage/wyj/DLM/DLLM-RL/multinode_rl_sdar/ckpt/epoch-5"
+
+dataset:
+    eval_dataset: "MATH500" #"MBPP""MATH500""GSM8K""AIME2024""GPQA""LiveCodeBench""HumanEval"
+    data_type: "math" #"code""option""math"
+
+execute:
+    num_chunk: 128
+
+rollout:
+    tensor_parallel_size: 1
+    max_active: 256
+    num_response_per_task: 3
+    temperature: 1.0
+    max_token: 2000
+    block_size: 4
+    denoising_steps_per_block: 4
+    top_p: 1.0
+    top_k: 1
+    remasking_strategy: "low_confidence_static" #"low_confidence_static""low_confidence_dynamic"
+    dynamic_threshold: 0.9
+    start_with_think: False
+    output_unmasking_history: True
+
+
