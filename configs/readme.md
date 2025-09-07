@@ -1,6 +1,6 @@
 # Instructions
 
-We introduce the recommended configs for different tasks and explain how to modify your own configs. Each config file governs one project/job. Make sure you fill in all the required parameters in the config file before using it; at the very least, this includes the dataset name and the model name. The details on how to modify the given example configs, along with definitions of their elements, are included within them.
+We introduce the recommended configs for different tasks and explain how to modify your own configs. Each config file governs one project/job. Make sure you fill in all the required parameters in the config file before using it; at the very least, this includes the dataset name, the model name, and the num of gpus you have. The details on how to modify the given example configs, along with definitions of their elements, are included within them.
 
 
 
