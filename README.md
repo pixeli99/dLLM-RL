@@ -1,6 +1,6 @@
 # DLLM-RL
 
-Tired of playing with LLMs? It’s time to try **diffusion language models**! Exploring them is super easy here.
+
 
 
 
