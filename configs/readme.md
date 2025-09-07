@@ -19,6 +19,14 @@ For TraDo and SDAR models, use `sft_sdar.yaml`. For dream and diffu-coder, use `
 
 For TraDo and SDAR models, use `rl_sdar.yaml` or `multinode_rl_sdar.yaml`. For dream and diffu-coder, use `sft_dream.yaml` or `multinode_rl_dream.yaml`. For LLaDA and MMaDA, use `sft_llada.yaml` or `multinode_rl_llada.yaml`. If use value model, use `rl_sdar_with_value.yaml` or `multinode_rl_sdar_with_value.yaml`. We also support coding rl, see an example script `rl_sdar_code.yaml`.
 
+
+
+## Main required fields:
+
+The model name
+
+
+
 ## Create your own configs:
 
 Keep `experiment.project` same as the corresponding file name. You can first try some related example configs to get familiar with.
