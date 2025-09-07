@@ -15,7 +15,9 @@ For TraDo instruction and SDAR models, use `sdar_eval.yaml` or `sdar_multinode_e
 
 For TraDo and SDAR models, use `sft_sdar.yaml`. For dream and diffu-coder, use `sft_dream.yaml`. For LLaDA and MMaDA, use `sft_llada.yaml`.
 
+### RL:
 
+For TraDo and SDAR models, use `rl_sdar.yaml` or `multinode_rl_sdar.yaml`. For dream and diffu-coder, use `sft_dream.yaml` or `multinode_rl_dream.yaml`. For LLaDA and MMaDA, use `sft_llada.yaml` or `multinode_rl_llada.yaml`.
 
 ## Create your own configs:
 
