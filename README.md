@@ -1,6 +1,6 @@
 <div align="center">
 <br>
-<img src="assets/title.png" width="166">
+<img src="assets/title.png" width="200">
 <h3>Comprehensive RL Training Framework for SOTA Diffusion Large Language Models</h3></div>
 
 
