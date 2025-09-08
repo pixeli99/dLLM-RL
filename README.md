@@ -42,8 +42,12 @@
 
 
 
-## 🧠 Our Models
+## 🧠 Methods and Models
 
+<p align="center">
+  <img src="sft.png" width="45%"/>
+  <img src="rl.png" width="45%"/>
+</p>
 
 
 ## 📰 Latest Updates
