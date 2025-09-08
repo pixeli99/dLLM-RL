@@ -91,11 +91,11 @@ cd ..
 
 ## 📊 Inference & Evaluations
 
-After downloading the data, take the SADR model as an example. You can set the configurations in `configs/sdar_eval.yaml` and run the following commands to perform inference with different sampling strategies.
+After downloading the data, take TraDo and SADR models as an example. You can set the configurations in `configs/sdar_eval.yaml` and run the following commands to perform inference with different sampling strategies.
 ```bash
 python eval.py config=configs/sdar_eval.yaml
 ```
-Use `sdar_eval.yaml` for SDAR models' inference, `dream_eval.yaml` for Dream and Diffu-Coder, and `llada_eval.yaml` for LLaDA and MMaDA. Instructions on how to set the configurations are provided in the corresponding configuration files.  
+Use `sdar_eval.yaml` for TraDo and SDAR models' inference, `dream_eval.yaml` for Dream and Diffu-Coder, and `llada_eval.yaml` for LLaDA and MMaDA. Instructions on how to set the configurations are provided in the corresponding configuration files.  
 We support both general tasks and coding tasks (including automated execution of code) in evaluation.  
 You can also perform inference across multiple nodes using `multinode_eval.py` with the same configuration files, with only minor modifications as instructed in the configuration files.
 In multi-node setup, the first node controls the others. You can simply run  
