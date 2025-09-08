@@ -1,5 +1,5 @@
 <h2 align="center">
-  dLLM-RL
+  dLLM-RL: a comprehensive framework for deploying and training diffusion language models
 </h2>
 
 <p align="center">
