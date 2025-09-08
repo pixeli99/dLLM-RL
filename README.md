@@ -1,6 +1,6 @@
-# DLLM-RL
-
-
+<h2 align="center">
+  dLLM-RL
+</h2>
 
 <p align="center">
   <img src="assets/figure1.png"  alt="Overview"  width="800">
