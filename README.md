@@ -51,7 +51,7 @@
 
 
 <p align="center">
-  <img src="figures/maintable.png"  alt="Main Table"  width="700">
+  <img src="assets/maintable.png"  alt="Main Table"  width="700">
 </p>
 
 ## 📰 Latest Updates
