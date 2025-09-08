@@ -17,6 +17,8 @@ For Dream series and diffu-coder, use `dream_eval.yaml` or `dream_multinode_eval
 
 For LLaDA series and MMaDA, use `llada_eval.yaml` or `llada_multinode_eval.yaml`.
 
+Then use `eval.py` or `multinode_eval.py` to start your evaluation!
+
 ### SFT:
 
 For TraDo and SDAR models, use `sft_sdar.yaml`. 
@@ -37,6 +39,7 @@ For LLaDA and MMaDA, use `sft_llada.yaml` or `multinode_rl_llada.yaml`.
 
 We also support coding rl, see an example script `rl_sdar_code.yaml`.
 
+Then use `rl.py` or `multinode_rl.py` to start your RL!
 
 
 ## Main required fields:
