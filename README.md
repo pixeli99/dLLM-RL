@@ -1,7 +1,7 @@
 <div align="center">
 <br>
 <img src="assets/title.png" width="166">
-<h3>Comprehensive Framework for Deploying and Training Diffusion Language Models</h3></div>
+<h3>Comprehensive RL Training Framework for Diffusion Language Models</h3></div>
 
 
 <p align="center">
