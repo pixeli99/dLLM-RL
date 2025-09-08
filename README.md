@@ -10,13 +10,13 @@
       src="https://img.shields.io/badge/Paper-Arxiv-red?logo=arxiv&logoColor=red"
       alt="CURE Paper on arXiv"
     />
-  <a href="https://huggingface.co/collections/Gen-Verse/reasonflux-coder-6833109ed9300c62deb32c6b">
+  <a href="https://huggingface.co/collections/Gen-Verse/trado-series-68beb6cd6a26c27cde9fe3af">
     <img 
         src="https://img.shields.io/badge/Datasets-Hugging%20Face%20Data-orange?logo=huggingface&logoColor=yellow" 
         alt="Coding Datasets on Hugging Face"
     />
   </a>
-  <a href="https://huggingface.co/collections/Gen-Verse/reasonflux-coder-6833109ed9300c62deb32c6b">
+  <a href="https://huggingface.co/collections/Gen-Verse/trado-series-68beb6cd6a26c27cde9fe3af">
     <img 
         src="https://img.shields.io/badge/ReasonFlux--Coders-Hugging%20Face%20Model-FFCC00?logo=huggingface&logoColor=yellow" 
         alt="ReasonFlux Coders on Hugging Face"
