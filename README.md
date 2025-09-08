@@ -45,8 +45,8 @@
 ## 🧠 Methods and Models
 
 <p align="center">
-  <img src="sft.png" width="45%"/>
-  <img src="rl.png" width="45%"/>
+  <img src="assets/sft.png" width="45%"/>
+  <img src="assets/rl.png" width="45%"/>
 </p>
 
 
