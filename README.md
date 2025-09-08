@@ -111,10 +111,15 @@ fi
 
 
 ## 🔧 Reinforcement Learning
+
+After downloading the data and model and setting the configuration, you can start reinforcement learning simply with:
 ```bash
 python rl.py config=configs/rl_sdar.yaml
 ```
 
+We support TraceRL (optionally with a diffusion-based value model), Coupled RL, and random masking RL across different diffusion language models. The sampling process has been accelerated in all cases by KV-cache.
+
+We also support a multi-node RL framework; you can submit the following as the entry command:
 ```bash
 if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then   
     python multinode_rl.py config=configs/multinode_rl_dream.yaml
