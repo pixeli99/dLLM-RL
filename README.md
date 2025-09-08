@@ -97,7 +97,7 @@ print(cleaned_text)
 
 ## 📰 Latest Updates
 * **[2025-09-08]** 🔥  We release our models, [TraDo-4B-Instruct](https://huggingface.co/Gen-Verse/TraDo-4B-Instruct) and [TraDo-8B-Instruct](https://huggingface.co/Gen-Verse/TraDo-8B-Instruct), and the first long-CoT diffusion language model [TraDo-8B-Thinking](https://huggingface.co/Gen-Verse/TraDo-8B-Thinking).
-* **[2025-09-08]** 🔥  We release inference and training code compatible with a wide range of diffusion language models.
+* **[2025-09-08]** 🔥  We release inference and training code compatible with a wide range of diffusion language models, including [TraDo](https://arxiv.org/abs/2506.03136), [SDAR](https://github.com/JetAstra/SDAR), [Dream](https://github.com/DreamLM/Dream), [LLaDA](https://github.com/ML-GSAI/LLaDA), [MMaDA](https://github.com/Gen-Verse/MMaDA), and [Diffu-Coder](https://github.com/apple/ml-diffucoder).
 
 
 ## 🚀 Quick Start
