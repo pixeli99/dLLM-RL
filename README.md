@@ -18,7 +18,7 @@
   </a>
   <a href="https://huggingface.co/collections/Gen-Verse/trado-series-68beb6cd6a26c27cde9fe3af">
     <img 
-        src="https://img.shields.io/badge/ReasonFlux--Coders-Hugging%20Face%20Model-FFCC00?logo=huggingface&logoColor=yellow" 
+        src="https://img.shields.io/badge/TraDo%204B/8B-Hugging%20Face%20Model-FFCC00?logo=huggingface&logoColor=yellow" 
         alt="ReasonFlux Coders on Hugging Face"
     />
   </a>
@@ -35,14 +35,14 @@
 
 ## 🌱 Features 
 
-- Model Support: [TraDo](https://arxiv.org/abs/2506.03136), [SDAR](https://github.com/JetAstra/SDAR), [Dream](https://github.com/DreamLM/Dream), [LLaDA](https://github.com/ML-GSAI/LLaDA), [MMaDA](https://github.com/Gen-Verse/MMaDA), [Diffu-Coder](https://github.com/apple/ml-diffucoder) We support models with diverse structures, including full attention models, adapted models, and block attention models.
-- Inference: improved [KV-cache](https://github.com/NVlabs/Fast-dLLM/tree/main), [jetengine](https://github.com/Labman42/JetEngine/tree/0ddc55ad3fb712b6374515b78d656f420e1a7243) (based on nano-vllm), different sampling strategies, support multi-nodes, easy to build your own accelerated inference methods
-- RL: [TraceRL (support diffusion value model)](https://arxiv.org/abs/2506.03136), [coupled RL](https://github.com/apple/ml-diffucoder), [random masking RL](https://github.com/Gen-Verse/MMaDA), accelerated sampling, including Math, coding, and general RL tasks, support multi-nodes, easy to build your reinforcement learning methods across diverse settings
-- SFT: Flash block SFT, semi-AR SFT, random masking SFT, support multi-nodes and long-CoT finetune
+- **Model Support**: [TraDo](https://arxiv.org/abs/2506.03136), [SDAR](https://github.com/JetAstra/SDAR), [Dream](https://github.com/DreamLM/Dream), [LLaDA](https://github.com/ML-GSAI/LLaDA), [MMaDA](https://github.com/Gen-Verse/MMaDA), [Diffu-Coder](https://github.com/apple/ml-diffucoder) We support models with diverse structures, including full attention models, adapted models, and block attention models.
+- **Inference Acceleration**: improved [KV-cache](https://github.com/NVlabs/Fast-dLLM/tree/main), [jetengine](https://github.com/Labman42/JetEngine/tree/0ddc55ad3fb712b6374515b78d656f420e1a7243) (based on nano-vllm), different sampling strategies, support multi-nodes, easy to build your own accelerated inference methods
+- **RL Training**: [TraceRL (support diffusion value model)](https://arxiv.org/abs/2506.03136), [coupled RL](https://github.com/apple/ml-diffucoder), [random masking RL](https://github.com/Gen-Verse/MMaDA), accelerated sampling, including Math, coding, and general RL tasks, support multi-nodes, easy to build your reinforcement learning methods across diverse settings
+- **SFT**: Flash block SFT, semi-AR SFT, random masking SFT, support multi-nodes and long-CoT finetune
 
 
 
-## 🧠 Methods & Models
+## 🧠 RL Methods (TraceRL) & Models (TraDo)
 
 We propose **TraceRL**, a trajectory-aware reinforcement learning method for diffusion language models, which demonstrates the best performance among RL approaches for DLMs. We also introduce a diffusion-based value model that reduces variance and improves stability during optimization.
 
@@ -177,9 +177,9 @@ accelerate launch \
 ## 📖 Citation
 
 ```
-@article{wang2025cure,
-  title={Co-Evolving LLM Coder and Unit Tester via Reinforcement Learning},
-  author={Wang, Yinjie and Yang, Ling and Tian, Ye and Shen, Ke and Wang, Mengdi},
+@article{wang2025tracerl,
+  title={Revolutionizing Reinforcement Learning Framework for Diffusion Large Language Models},
+  author={Wang, Yinjie and Yang, Ling and Li, Bowen and Tian, Ye and Shen, Ke and Wang, Mengdi},
   journal={arXiv preprint arXiv:2506.03136},
   year={2025}
 }
@@ -190,7 +190,7 @@ accelerate launch \
 
 This work is heavily built on the following open-source models:
 
-[SDAR](https://github.com/JetAstra/SDAR), [Dream](https://github.com/DreamLM/Dream), [LLaDA](https://github.com/ML-GSAI/LLaDA), [MMaDA](https://github.com/Gen-Verse/MMaDA/tree/main), and [Diffu-coder](https://github.com/apple/ml-diffucoder). 
+[SDAR](https://github.com/JetAstra/SDAR), [Dream](https://github.com/DreamLM/Dream), [LLaDA](https://github.com/ML-GSAI/LLaDA), [MMaDA](https://github.com/Gen-Verse/MMaDA/tree/main), and [Diffu-coder](https://github.com/apple/ml-diffuCoder). 
 
 and these acceleration methods (engines):
 
