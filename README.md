@@ -87,6 +87,7 @@ python download_data.py --dataset MATH_train
 cd ..
 ```
 
+After downloading the data, you are almost ready to evaluate or train diffusion language models. The only remaining step is to select (or create) a config file in `./configs` that corresponds to your project, and then use the following commands. Details on how to select and modify (or create) a config file are provided in `./configs`.
 
 
 ## 📊 Inference & Evaluations
