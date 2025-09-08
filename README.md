@@ -130,6 +130,7 @@ fi
 
 ## 🔧 Supervised Finetuning
 
+After downloading the data and setting the configurations, you can start supervised fine-tuning with:
 ```bash
 accelerate launch \
   --num_machines 1 \
@@ -141,16 +142,26 @@ accelerate launch \
   config=configs/sft_sdar.yaml
 ```
 
+We support different SFT strategies for different models.
 
+Block diffusion models (e.g., TraDo and SDAR): support semi-autoregressive fine-tuning or trace fine-tuning (requires setting a specific trace first).
+
+Adapted full-attention models (e.g., Dream and DiffuCoder): support the semi-autoregressive method (using sliced data), random-masking SFT, and AR training (i.e., standard SFT for LLMs).
+
+Pretrained full-attention models (e.g., LLaDA and MMaDA): support semi-autoregressive and random-masking SFT.
+
+
+
+To use multi-node, simply run:
 ```bash
 accelerate launch \
   --num_machines $MLP_WORKER_NUM \
   --machine_rank $MLP_ROLE_INDEX \
   --main_process_ip $MLP_WORKER_0_HOST \
   --main_process_port $MLP_WORKER_0_PORT \
-  --config_file accelerate_configs/2_node_8_gpus_deepspeed_zero3.yaml \
-  train/sft_sdar.py \
-  config=configs/sft_sdar.yaml
+  --config_file accelerate_configs/4_node_8_gpus_deepspeed_zero3.yaml \
+  train/sft_dream.py \
+  config=configs/sft_dream.yaml
 ```
 
 ## 📖 Citation
