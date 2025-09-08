@@ -144,11 +144,11 @@ accelerate launch \
 
 We support different SFT strategies for different models.
 
-Block diffusion models (e.g., TraDo and SDAR): support semi-autoregressive fine-tuning or trace fine-tuning (requires setting a specific trace first).
+**Block diffusion models** (e.g., TraDo and SDAR): support semi-autoregressive fine-tuning or trace fine-tuning (requires setting a specific trace first).
 
-Adapted full-attention models (e.g., Dream and DiffuCoder): support the semi-autoregressive method (using sliced data), random-masking SFT, and AR training (i.e., standard SFT for LLMs).
+**Adapted full-attention models** (e.g., Dream and DiffuCoder): support the semi-autoregressive method (using sliced data), random-masking SFT, and AR training (i.e., standard SFT for LLMs).
 
-Pretrained full-attention models (e.g., LLaDA and MMaDA): support semi-autoregressive and random-masking SFT.
+**Pretrained full-attention models** (e.g., LLaDA and MMaDA): support semi-autoregressive and random-masking SFT.
 
 
 
