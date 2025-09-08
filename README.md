@@ -42,7 +42,7 @@
 
 
 
-## 🧠 Our Methods & Models
+## 🧠 Methods & Models
 
 <p align="center">
   <img src="assets/sft.png" width="45%"/>
