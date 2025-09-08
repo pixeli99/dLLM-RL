@@ -44,11 +44,15 @@
 
 ## 🧠 Methods & Models
 
+We propose TraceRL, a trajectory-aware reinforcement learning method for diffusion language models, which demonstrates the best performance among RL approaches for DLMs. We also introduce a diffusion-based value model that reduces variance and improves stability during optimization.
+
+
 <p align="center">
   <img src="assets/sft.png" width="45%"/>
   <img src="assets/rl.png" width="45%"/>
 </p>
 
+Based on TraceRL, we derive a series of diffusion language models, TraDo, which achieve state-of-the-art performance on math and coding reasoning tasks. TraDo-4B-Instruct and TraDo-8B-Instruct are trained solely with TraceRL, while the first long-CoT diffusion language model, TraDo-8B-Thinking, is obtained through a combination of TraceRL and long-CoT data SFT.
 
 <p align="center">
   <img src="assets/maintable.png"  alt="Main Table"  width="700">
