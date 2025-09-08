@@ -167,7 +167,23 @@ accelerate launch \
 
 ## 📖 Citation
 
+```
+@article{wang2025cure,
+  title={Co-Evolving LLM Coder and Unit Tester via Reinforcement Learning},
+  author={Wang, Yinjie and Yang, Ling and Tian, Ye and Shen, Ke and Wang, Mengdi},
+  journal={arXiv preprint arXiv:2506.03136},
+  year={2025}
+}
+```
+
+
 ## 🤝 Acknowledgement
+
+This work is heavily built on the following open-source models:
+
+[SDAR](https://github.com/JetAstra/SDAR), [Dream](https://github.com/DreamLM/Dream), [LLaDA](https://github.com/ML-GSAI/LLaDA), [MMaDA](https://github.com/Gen-Verse/MMaDA/tree/main), and [Diffu-coder](https://github.com/apple/ml-diffucoder). 
+
+and these acceleration methods (engines): [Fast-dllm](https://github.com/NVlabs/Fast-dLLM/tree/main), [jetengine](https://github.com/Labman42/JetEngine/tree/0ddc55ad3fb712b6374515b78d656f420e1a7243).
 
 
 ## 💬 Discussion
