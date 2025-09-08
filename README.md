@@ -1,7 +1,7 @@
-<h2 align="center">
-  dLLM-RL:
-  a comprehensive framework for deploying and training diffusion language models
-</h2>
+<div align="center">
+<br>
+<img src="assets/title.pdf" width="166">
+<h3>Multimodal Large Diffusion Language Models</h3></div>
 
 <p align="center">
   <img src="assets/figure1.png"  alt="Overview"  width="700">
