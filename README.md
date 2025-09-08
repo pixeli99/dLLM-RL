@@ -167,7 +167,7 @@ python rl.py config=configs/rl_sdar.yaml
 
 We support TraceRL (optionally with a diffusion-based value model), Coupled RL, and random masking RL across different diffusion language models. The sampling process has been accelerated in all cases by KV-cache.
 
-**TraceRL**: We optimize the policy based on how it generates sequences. For block-attention models, training can be performed efficiently thanks to block attention. For full-attention models, we introduce a shrinkage parameter, s, that aggregates every s neighboring steps to accelerate training. We also provide a choice of value models, which we find can reduce variance and improve training stability, enabling the use of larger learning rates or fewer gradient accumulation steps more reliably.
+**TraceRL**: We optimize the policy based on how it generates sequences. For block-attention models, training can be performed efficiently thanks to block attention. For full-attention models, we introduce a shrinkage parameter, s, that aggregates every s neighboring steps to accelerate training. We also provide a choice of value models for TraceRL, which we find can reduce variance and improve training stability, enabling the use of larger learning rates or fewer gradient accumulation steps more reliably than without using value model.
 
 
 **Random Masking RL**: The sampled data are randomly masked and used as training data in RL with a PPO-like objective.
