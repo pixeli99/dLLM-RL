@@ -55,7 +55,8 @@
 </p>
 
 ## 📰 Latest Updates
-
+* **[2025-09-08]** 🔥  We release our models, [TraDo-4B-Instruct](https://huggingface.co/Gen-Verse/ReasonFlux-Coder-7B) and [TraDo-8B-Instruct](https://huggingface.co/Gen-Verse/ReasonFlux-Coder-14B), and the first long-CoT diffusion language model [TraDo-8B-Thinking](https://huggingface.co/Gen-Verse/ReasonFlux-Coder-7B).
+* **[2025-09-08]** 🔥  We release inference and training code compatible with a wide range of diffusion language models.
 
 
 ## 🚀 Quick Start
