@@ -98,6 +98,13 @@ python eval.py config=configs/sdar_eval.yaml
 ```
 Use `sdar_eval.yaml` for TraDo and SDAR models' inference, `dream_eval.yaml` for Dream and Diffu-Coder, and `llada_eval.yaml` for LLaDA and MMaDA. Instructions on how to set the configurations are provided in the corresponding configuration files.  
 We support both general tasks and coding tasks (including automated execution of code) in evaluation.  
+
+There are two main sampling methods you can choose:
+
+**Static Sampling:** unmask fixed number of tokens each time
+
+**Dynamic Sampling:** unmask tokens based on a chosen threshold, faster than static
+
 You can also perform inference across multiple nodes using `multinode_eval.py` with the same configuration files, with only minor modifications as instructed in the configuration files.
 In multi-node setup, the first node controls the others. You can simply run  
 `python multinode_eval.py config=configs/sdar_eval.yaml` on the first node, or submit the following as the entry command for a job:
