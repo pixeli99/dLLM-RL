@@ -22,7 +22,12 @@
         alt="ReasonFlux Coders on Hugging Face"
     />
   </a>
-  
+  <a href="https://huggingface.co/collections/Gen-Verse/reasonflux-coder-6833109ed9300c62deb32c6b">
+    <img 
+        src="https://img.shields.io/badge/ReasonFlux--Coders-Hugging%20Face%20Model-FFCC00?logo=huggingface&logoColor=yellow" 
+        alt="ReasonFlux Coders on Hugging Face"
+    />
+  </a>
 </p>
 
 
