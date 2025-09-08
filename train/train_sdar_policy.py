@@ -503,7 +503,7 @@ def main():
 
         policy_loss = - (surrogate_tok.sum() / B)
 
-        # ---------- 6. KL penalty（可选） ----------
+        # KL penalty
         kl_loss = torch.tensor(0.0, device=policy_loss.device)
         if config.training.beta > 0:
             kl_seq = logp_new_tok - logp_old_tok
