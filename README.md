@@ -142,6 +142,9 @@ There are two main sampling methods you can choose:
 
 **Dynamic Sampling:** unmask tokens based on a chosen threshold, faster than static
 
+To have a look how diffusion language models sample, open `./sample/trace.viewer.html` in your browser, or generate trajectory by your self with `./sample/get_trace_viewer.py`.
+
+
 You can also perform inference across multiple nodes using `multinode_eval.py` with the same configuration files, with only minor modifications as instructed in the configuration files.
 In multi-node setup, the first node controls the others. You can simply run  
 `python multinode_eval.py config=configs/sdar_eval.yaml` on the first node, or submit the following as the entry command for a job:
