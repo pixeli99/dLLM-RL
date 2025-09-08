@@ -3,6 +3,31 @@
 <img src="assets/title.png" width="166">
 <h3>Comprehensive Framework for Deploying and Training Diffusion Language Models</h3></div>
 
+
+<p align="center">
+  <a href="https://arxiv.org/abs/2506.03136">
+    <img
+      src="https://img.shields.io/badge/Paper-Arxiv-red?logo=arxiv&logoColor=red"
+      alt="CURE Paper on arXiv"
+    />
+  <a href="https://huggingface.co/collections/Gen-Verse/reasonflux-coder-6833109ed9300c62deb32c6b">
+    <img 
+        src="https://img.shields.io/badge/Datasets-Hugging%20Face%20Data-orange?logo=huggingface&logoColor=yellow" 
+        alt="Coding Datasets on Hugging Face"
+    />
+  </a>
+  <a href="https://huggingface.co/collections/Gen-Verse/reasonflux-coder-6833109ed9300c62deb32c6b">
+    <img 
+        src="https://img.shields.io/badge/ReasonFlux--Coders-Hugging%20Face%20Model-FFCC00?logo=huggingface&logoColor=yellow" 
+        alt="ReasonFlux Coders on Hugging Face"
+    />
+  </a>
+  
+</p>
+
+
+
+
 <p align="center">
   <img src="assets/figure1.png"  alt="Overview"  width="750">
 </p>
