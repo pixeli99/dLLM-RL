@@ -59,6 +59,21 @@ The model name, dataset to eval on or train on (and the data type, math or code)
 
 Use `eval.py` or `multinode_eval.py` (if uou have multi-nodes).
 
+Then simply:
+```
+python eval.py config=configs/CONFIG
+# sample: CONFIG = sdar_eval.yaml
+```
+or (for multi-nodes)
+```
+if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then   
+    python multinode_eval.py config=configs/CONFIG
+else
+    exec tail -f /dev/null
+fi
+# sample: CONFIG = multinode_dream_eval.yaml
+```
+
 ### SFT:
 
 For Trado: `sft_trado.py`
@@ -71,11 +86,38 @@ For LLaDA: `sft_llada.py`
 
 For MMaDA: `sft_mmada.py`
 
+Then simply:
+```
+accelerate launch \
+  --num_machines 1 \
+  --machine_rank 0 \
+  --main_process_ip 127.0.0.1 \
+  --main_process_port 8888 \
+  --config_file accelerate_configs/YOUR_DEEPSPEED_CONFIG \
+  train/PYTHON_SCRIPT \
+  config=configs/CONFIG
+# example: YOUR_DEEPSPEED_CONFIG = 1_node_8_gpus_deepspeed_zero3.yaml, PYTHON_SCRIPT = sft_sdar.py, CONFIG = sft_sdar.yaml
+```
+
 
 ### RL:
 
 Use `rl.py` or `multinode_rl.py` (if uou have multi-nodes).
 
+Then simply:
+```
+python rl.py config=configs/CONFIG
+# sample: CONFIG = rl_sdar.yaml
+```
+or (for multi-nodes)
+```
+if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then   
+    python multinode_rl.py config=configs/CONFIG
+else
+    exec tail -f /dev/null
+fi
+# sample: CONFIG = multinode_rl_dream.yaml
+```
 
 
 
