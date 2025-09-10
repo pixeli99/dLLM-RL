@@ -136,7 +136,7 @@ python eval.py config=configs/trado_eval.yaml
 # python eval.py config=configs/dream_eval.yaml
 # python eval.py config=configs/llada_eval.yaml
 ```
-Use `sdar_eval.yaml` for TraDo and SDAR models' inference, `dream_eval.yaml` for Dream and Diffu-Coder, and `llada_eval.yaml` for LLaDA and MMaDA. Instructions on how to set the configurations are provided in the corresponding configuration files.  
+Use `trado_eval.yaml` for TraDo models' inference, `sdar_eval.yaml` for SDAR, `dream_eval.yaml` for Dream and Diffu-Coder, and `llada_eval.yaml` for LLaDA and MMaDA. Instructions on how to set the configurations are provided in the corresponding configuration files.  
 We support both general tasks and coding tasks (including automated execution of code) in evaluation.  
 
 There are two main sampling methods you can choose:
@@ -158,6 +158,8 @@ if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then
 else
     exec tail -f /dev/null
 fi
+# python multinode_eval.py config=configs/trado_longcot_multinode_eval.yaml
+# python multinode_eval.py config=configs/llada_multinode_eval.yaml
 ```
 
 
@@ -165,7 +167,10 @@ fi
 
 After downloading the data and model and setting the configuration, you can start reinforcement learning simply with:
 ```bash
-python rl.py config=configs/rl_sdar.yaml
+python rl.py config=configs/rl_trado.yaml
+# python rl.py config=configs/rl_sdar.yaml
+# python rl.py config=configs/rl_dream.yaml
+# python rl.py config=configs/rl_llada.yaml
 ```
 
 We support TraceRL (optionally with a diffusion-based value model), Coupled RL, and random masking RL across different diffusion language models. The sampling process has been accelerated in all cases by KV-cache.
@@ -182,10 +187,13 @@ We support TraceRL (optionally with a diffusion-based value model), Coupled RL, 
 We also support a multi-node RL framework; you can submit the following as the entry command:
 ```bash
 if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then   
-    python multinode_rl.py config=configs/multinode_rl_dream.yaml
+    python multinode_rl.py config=configs/multinode_rl_trado.yaml
 else
     exec tail -f /dev/null
 fi
+# python multinode_rl.py config=configs/multinode_rl_sdar.yaml
+# python multinode_rl.py config=configs/multinode_rl_dream.yaml
+# python multinode_rl.py config=configs/multinode_rl_llada.yaml
 ```
 
 ## 🔧 Supervised Finetuning
@@ -198,8 +206,12 @@ accelerate launch \
   --main_process_ip 127.0.0.1 \
   --main_process_port 8888 \
   --config_file accelerate_configs/1_node_8_gpus_deepspeed_zero3.yaml \
-  train/sft_sdar.py \
-  config=configs/sft_sdar.yaml
+  train/sft_trado.py \
+  config=configs/sft_trado.yaml
+# sft_sdar.py, sft_sdar.yaml
+# sft_dream.py, sft_dream.yaml
+# sft_llada.py, sft_llada.yaml
+# sft_mmada.py, sft_mmada.yaml
 ```
 
 We support different SFT strategies for different models.
