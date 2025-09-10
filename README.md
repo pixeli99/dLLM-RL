@@ -129,7 +129,7 @@ After downloading the data, you are almost ready to evaluate or train diffusion 
 
 ## 📊 Inference & Evaluations
 
-After downloading the data, take TraDo and SADR models as an example. You can set the configurations in `configs/sdar_eval.yaml` and run the following commands to perform inference with different sampling strategies.
+After downloading the data, take TraDo and SADR models as an example. You can set the configurations in `configs/sdar_eval.yaml` (see instructions and details in `./configs`) and run the following commands to perform inference with different sampling strategies.
 ```bash
 python eval.py config=configs/sdar_eval.yaml
 ```
