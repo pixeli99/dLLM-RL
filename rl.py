@@ -27,10 +27,14 @@ if __name__ == "__main__":
         with open(file_name, "w") as f:
             f.write("")
     
-    def init_value_model(i, cfg):
+    def init_value_model(i, model_base, cfg):
         project_name = cfg.experiment.project
+        if model_base == "sdar":
+            script_name = "init_sdar_value_model.py"
+        elif model_base == "trado":
+            script_name = "init_trado_value_model.py"
         subprocess.run(
-            f'python init_sdar_value_model.py '
+            f'python {script_name} '
             f'config=../configs/{project_name}.yaml '
             f'experiment.current_epoch={i} ',
             shell=True,
@@ -44,7 +48,7 @@ if __name__ == "__main__":
         begin_with(f"{project_name}/results/results-rl-" + optimized_model.replace("/", ".") + "-" + config.dataset.train_dataset + ".txt")
         begin_with(f"{project_name}/results/results-eval-" + optimized_model.replace("/", ".") + "-" + config.dataset.train_dataset + ".txt")
         if have_value_model:
-            init_value_model(1, config)
+            init_value_model(1, model_base, config)
             optimized_value_model = "../" + project_name + "/ckpt/" + config.model.optimized_value_name
             begin_with(f"{project_name}/results/results-rl-" + optimized_value_model.replace("/", ".") + "-" + config.dataset.train_dataset + ".txt")
     
@@ -55,6 +59,8 @@ if __name__ == "__main__":
             script_name = "llada_rl_rollout.py"
         elif model_base == "sdar":
             script_name = "sdar_rl_rollout.py"
+        elif model_base == "trado":
+            script_name = "trado_rl_rollout.py"
         subprocess.run(
             f'python {script_name} '
             f'config=../configs/{project_name}.yaml '
@@ -108,12 +114,18 @@ if __name__ == "__main__":
                 script_name = "rl_mmada.py"
             elif model_base == "sdar":
                 script_name = "rl_sdar.py"
+            elif model_base == "trado":
+                script_name = "rl_trado.py"
         elif target == "policy":
-            assert model_base == "sdar"
-            script_name = "train_sdar_policy.py"
+            if model_base == "sdar":
+                script_name = "train_sdar_policy.py"
+            elif model_base == "trado":
+                script_name = "train_trado_policy.py"
         elif target == "value":
-            assert model_base == "sdar"
-            script_name = "train_sdar_value.py"
+            if model_base == "sdar":
+                script_name = "train_sdar_value.py"
+            elif model_base == "trado":
+                script_name = "train_trado_value.py"
         subprocess.run(
             f'accelerate launch '
             f'--num_machines 1 '
