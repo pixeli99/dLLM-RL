@@ -71,7 +71,7 @@ if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then
 else
     exec tail -f /dev/null
 fi
-# sample: CONFIG = multinode_dream_eval.yaml
+# sample: CONFIG = dream_multinode_eval.yaml
 ```
 
 ### SFT:
