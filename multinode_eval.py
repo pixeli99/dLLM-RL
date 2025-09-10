@@ -95,6 +95,8 @@ if __name__ == "__main__":
             python_name = "llada_sample"
         elif model_base == "sdar":
             python_name = "sdar_sample"
+        elif model_base == "trado":
+            python_name = "trado_sample"
         for idx, host in enumerate(worker_hosts):
             body = (
                 f"cd {BASE_DIR}/sample && "
