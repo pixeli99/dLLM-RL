@@ -90,6 +90,8 @@ if __name__ == "__main__":
             script_name = "llada_rl_rollout.py"
         elif model_base == "sdar":
             script_name = "sdar_rl_rollout.py"
+        elif model_base == "trado":
+            script_name = "trado_rl_rollout.py"
         for idx, host in enumerate(worker_hosts):
             body = (
                 f"cd {BASE_DIR}/sample && "
@@ -177,12 +179,18 @@ if __name__ == "__main__":
                 script_name = "rl_mmada.py"
             elif model_base == "sdar":
                 script_name = "rl_sdar.py"
+            elif model_base == "trado":
+                script_name = "rl_trado.py"
         elif target == "policy":
-            assert model_base == "sdar"
-            script_name = "train_sdar_policy.py"
+            if model_base == "sdar":
+                script_name = "train_sdar_policy.py"
+            elif model_base == "trado":
+                script_name = "train_trado_policy.py"
         elif target == "value":
-            assert model_base == "sdar"
-            script_name = "train_sdar_value.py"
+            if model_base == "sdar":
+                script_name = "train_sdar_value.py"
+            elif model_base == "trado":
+                script_name = "train_trado_value.py"
         procs = []
         for idx, host in enumerate(worker_hosts):
             body = (
@@ -210,11 +218,15 @@ if __name__ == "__main__":
 
 
 
-    def init_value_model(epoch, cfg):
+    def init_value_model(epoch, model_base, cfg):
         project = cfg.experiment.project
+        if model_base == "sdar":
+            script_name = "init_sdar_value_model.py"
+        elif model_base == "trado":
+            script_name = "init_trado_value_model.py"
         full_cmd = env_prefix() + (
             f"cd {BASE_DIR}/train && "
-            f"python init_sdar_value_model.py "
+            f"python {script_name} "
             f"config=../configs/{project}.yaml "
             f"experiment.current_epoch={epoch}"
         )
@@ -244,6 +256,8 @@ if __name__ == "__main__":
     import time
     time.sleep(10)
 
+    model_base = cfg.model.model_base
+
     if cfg.experiment.start_from_scratch:
         os.makedirs(f"{project}/results", exist_ok=True)
         optimized = f"../{project}/ckpt/{cfg.model.optimized_name}"
@@ -260,7 +274,7 @@ if __name__ == "__main__":
         )
         begin_with(path)
         if have_value_model:
-            init_value_model(1, cfg)
+            init_value_model(1, model_base, cfg)
             optimized_value = f"../{project}/ckpt/{cfg.model.optimized_value_name}"
             path = (
                 f"{project}/results/results-rl-"
@@ -272,7 +286,7 @@ if __name__ == "__main__":
 
     epoch = cfg.experiment.current_epoch
 
-    model_base = cfg.model.model_base
+    
     if cfg.dataset.data_type == "code":
         is_code_task = True
     else:
