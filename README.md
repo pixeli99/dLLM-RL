@@ -131,8 +131,8 @@ After downloading the data, you are almost ready to evaluate or train diffusion 
 
 After downloading the data, take TraDo models as an example. You can set the configurations in `configs/trado_eval.yaml` (see instructions and details in `./configs`) and run the following commands to perform inference with different sampling strategies.
 ```bash
-python eval.py config=configs/trado_longcot_eval.yaml
-# python eval.py config=configs/trado_eval.yaml
+python eval.py config=configs/trado_eval.yaml
+# python eval.py config=configs/trado_longcot_eval.yaml
 # python eval.py config=configs/sdar_eval.yaml
 # python eval.py config=configs/dream_eval.yaml
 # python eval.py config=configs/llada_eval.yaml
