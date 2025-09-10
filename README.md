@@ -129,9 +129,12 @@ After downloading the data, you are almost ready to evaluate or train diffusion 
 
 ## 📊 Inference & Evaluations
 
-After downloading the data, take TraDo and SADR models as an example. You can set the configurations in `configs/sdar_eval.yaml` (see instructions and details in `./configs`) and run the following commands to perform inference with different sampling strategies.
+After downloading the data, take TraDo models as an example. You can set the configurations in `configs/trado_eval.yaml` (see instructions and details in `./configs`) and run the following commands to perform inference with different sampling strategies.
 ```bash
-python eval.py config=configs/sdar_eval.yaml
+python eval.py config=configs/trado_eval.yaml
+# python eval.py config=configs/sdar_eval.yaml
+# python eval.py config=configs/dream_eval.yaml
+# python eval.py config=configs/llada_eval.yaml
 ```
 Use `sdar_eval.yaml` for TraDo and SDAR models' inference, `dream_eval.yaml` for Dream and Diffu-Coder, and `llada_eval.yaml` for LLaDA and MMaDA. Instructions on how to set the configurations are provided in the corresponding configuration files.  
 We support both general tasks and coding tasks (including automated execution of code) in evaluation.  
