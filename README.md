@@ -136,6 +136,7 @@ python eval.py config=configs/trado_eval.yaml
 # python eval.py config=configs/sdar_eval.yaml
 # python eval.py config=configs/dream_eval.yaml
 # python eval.py config=configs/llada_eval.yaml
+# see details in ./configs
 ```
 Use `trado_eval.yaml` for TraDo models' inference, `sdar_eval.yaml` for SDAR, `dream_eval.yaml` for Dream and Diffu-Coder, and `llada_eval.yaml` for LLaDA and MMaDA. Instructions on how to set the configurations are provided in the corresponding configuration files.  
 We support both general tasks and coding tasks (including automated execution of code) in evaluation.  
@@ -174,6 +175,7 @@ python rl.py config=configs/rl_trado.yaml
 # python rl.py config=configs/rl_dream.yaml
 # python rl.py config=configs/rl_llada.yaml
 # python rl.py config=configs/rl_mmada.yaml
+# see details in ./configs
 ```
 
 We support TraceRL (optionally with a diffusion-based value model), Coupled RL, and random masking RL across different diffusion language models. The sampling process has been accelerated in all cases by KV-cache.
@@ -216,6 +218,7 @@ accelerate launch \
 # sft_dream.py, sft_dream.yaml
 # sft_llada.py, sft_llada.yaml
 # sft_mmada.py, sft_mmada.yaml
+# see details in ./configs
 ```
 
 We support different SFT strategies for different models.
