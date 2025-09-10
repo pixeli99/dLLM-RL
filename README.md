@@ -146,12 +146,12 @@ To have a look how diffusion language models sample, open `./sample/trace.viewer
 
 
 You can also perform inference across multiple nodes using `multinode_eval.py` with the same configuration files, with only minor modifications as instructed in the configuration files.
-In multi-node setup, the first node controls the others. You can simply run  
-`python multinode_eval.py config=configs/sdar_eval.yaml` on the first node, or submit the following as the entry command for a job:
+In multi-node setup, the first node controls the others. You can run  
+`python multinode_eval.py config=configs/dream_multinode_eval.yaml` on the first node to eval, or submit the following as the entry command for a job:
 
 ```bash
 if [[ ${MLP_ROLE_INDEX:-0} -eq 0 ]]; then   
-    python multinode_eval.py config=configs/sdar_eval.yaml
+    python multinode_eval.py config=configs/dream_multinode_eval.yaml
 else
     exec tail -f /dev/null
 fi
