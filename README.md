@@ -161,6 +161,7 @@ else
 fi
 # python multinode_eval.py config=configs/trado_longcot_multinode_eval.yaml
 # python multinode_eval.py config=configs/llada_multinode_eval.yaml
+# ...
 ```
 
 
@@ -172,6 +173,7 @@ python rl.py config=configs/rl_trado.yaml
 # python rl.py config=configs/rl_sdar.yaml
 # python rl.py config=configs/rl_dream.yaml
 # python rl.py config=configs/rl_llada.yaml
+# python rl.py config=configs/rl_mmada.yaml
 ```
 
 We support TraceRL (optionally with a diffusion-based value model), Coupled RL, and random masking RL across different diffusion language models. The sampling process has been accelerated in all cases by KV-cache.
@@ -195,6 +197,7 @@ fi
 # python multinode_rl.py config=configs/multinode_rl_sdar.yaml
 # python multinode_rl.py config=configs/multinode_rl_dream.yaml
 # python multinode_rl.py config=configs/multinode_rl_llada.yaml
+# python multinode_rl.py config=configs/multinode_rl_mmada.yaml
 ```
 
 ## 🔧 Supervised Finetuning
@@ -235,6 +238,8 @@ accelerate launch \
   --config_file accelerate_configs/4_node_8_gpus_deepspeed_zero3.yaml \
   train/sft_dream.py \
   config=configs/sft_dream.yaml
+# sft_trado.py, sft_trado.yaml
+# ...
 ```
 
 ## 📖 Citation
