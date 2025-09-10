@@ -4,12 +4,14 @@ We introduce the recommended configs for different tasks and explain how to modi
 
 
 
-## Which one to use?
+## Which config to use?
 
 
 ### Evaluation:
 
-For TraDo instruction and SDAR models, use `sdar_eval.yaml` or `sdar_multinode_eval.yaml`. 
+For TraDo instruction models, use `trado_eval.yaml` or `trado_multinode_eval.yaml`. 
+
+For SDAR models, use `sdar_eval.yaml` or `sdar_multinode_eval.yaml`. 
 
 For long-CoT model, TraDo-8B-Thinking, use `trado_longcot_eval.yaml` or `trado_longcot_multinode_eval.yaml`. 
 
@@ -21,7 +23,9 @@ Then use `eval.py` or `multinode_eval.py` to start your evaluation!
 
 ### SFT:
 
-For TraDo and SDAR models, use `sft_sdar.yaml`. 
+For TraDo models, use `sft_trado.yaml`. 
+
+For SDAR models, use `sft_sdar.yaml`. 
 
 For dream and diffu-coder, use `sft_dream.yaml`. 
 
@@ -29,8 +33,10 @@ For LLaDA and MMaDA, use `sft_llada.yaml`.
 
 ### RL:
 
-For TraDo and SDAR models, use `rl_sdar.yaml` or `multinode_rl_sdar.yaml`. 
+For TraDo models, use `rl_trado.yaml` or `multinode_rl_trado.yaml`. 
+If use value model, use `rl_trado_with_value.yaml` or `multinode_rl_trado_with_value.yaml`. 
 
+For SDAR models, use `rl_sdar.yaml` or `multinode_rl_sdar.yaml`. 
 If use value model, use `rl_sdar_with_value.yaml` or `multinode_rl_sdar_with_value.yaml`. 
 
 For dream and diffu-coder, use `sft_dream.yaml` or `multinode_rl_dream.yaml`. 
@@ -45,6 +51,31 @@ Then use `rl.py` or `multinode_rl.py` to start your RL!
 ## Main required fields:
 
 The model name, dataset to eval on or train on (and the data type, math or code),  the number of nodes you have (corresponding deepspeed config).
+
+
+## which python script (and command) to use?
+
+### Evaluation:
+
+Use `eval.py` or `multinode_eval.py` (if uou have multi-nodes).
+
+### SFT:
+
+For Trado: `sft_trado.py`
+
+For SDAR: `sft_sdar.py`
+
+For Dream and Diffu-Coder: `sft_dream.py`
+
+For LLaDA: `sft_llada.py`
+
+For MMaDA: `sft_mmada.py`
+
+
+### RL:
+
+Use `rl.py` or `multinode_rl.py` (if uou have multi-nodes).
+
 
 
 
