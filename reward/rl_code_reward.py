@@ -122,12 +122,12 @@ if __name__ == "__main__":
         output_text = f"train step: {config.experiment.current_epoch}  "
         
         if config.experiment.function == "train":
-            if config.model.model_base != "sdar":
+            if config.model.model_base != "sdar" and config.model.model_base != "trado":
                 output_text = output_text + f"remasking_strategy: {config.rollout.remasking_strategy}  block_size: {config.rollout.block_size}  acc: {acc}  avg length: {avg_len}"
             else:
                 output_text = output_text + f"remasking_strategy: {config.rollout.remasking_strategy}  top_k: {config.rollout.top_k}  acc: {acc}  avg length: {avg_len}"
         else:
-            if config.model.model_base != "sdar":
+            if config.model.model_base != "sdar" and config.model.model_base != "trado":
                 output_text = output_text + f"remasking_strategy: {config.evaluation.remasking_strategy}  block_size: {config.evaluation.block_size}  acc: {acc}  avg length: {avg_len}"
             else:
                 output_text = output_text + f"remasking_strategy: {config.evaluation.remasking_strategy}  top_k: {config.evaluation.top_k}  acc: {acc}  avg length: {avg_len}"
