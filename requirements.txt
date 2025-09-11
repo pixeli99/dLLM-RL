@@ -10,7 +10,7 @@ safetensors
 
 flashinfer-python>=0.2.12
 xformers
-triton
+triton>=3.0.0
 
 tqdm
 numpy
