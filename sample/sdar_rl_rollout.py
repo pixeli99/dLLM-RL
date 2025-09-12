@@ -448,17 +448,22 @@ if __name__ == "__main__":
     print(f"[preflight] CUDA_VISIBLE_DEVICES={os.environ.get('CUDA_VISIBLE_DEVICES')}")
     print(f"[preflight] parent sees torch.cuda.device_count()={torch.cuda.device_count()}")
 
+    cvd = os.environ.get("CUDA_VISIBLE_DEVICES")
+    if cvd:
+        visible_gpus = [x.strip() for x in cvd.split(",") if x.strip() != ""]
+        device_ids = [int(x) for x in visible_gpus]         
+    else:
+        device_ids = list(range(torch.cuda.device_count()))
+    
+    gpu_num = len(device_ids)     
     tp = int(config.rollout.tensor_parallel_size)
-    gpu_num = torch.cuda.device_count()
     assert gpu_num >= tp, f"Visible GPUs ({gpu_num}) < tensor_parallel_size ({tp})."
     assert gpu_num >= 1, "No GPU visible"
-
     if tp > 1:
         ngroups = 1
     else:
         ngroups = max(1, gpu_num // max(1, tp))
-
-    device_ids = list(range(gpu_num))
+    
     groups = [ device_ids[i*tp : (i+1)*tp] for i in range(ngroups) ]
 
     sampling_kwargs = dict(
