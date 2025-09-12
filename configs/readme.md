@@ -120,6 +120,11 @@ fi
 ```
 
 
+## Some tips:
+
+### For TraDo and SDAR models:
+For model with large block size, use `max_active` smaller, like 16 for block size of 64.
+
 
 ## Create your own configs:
 
