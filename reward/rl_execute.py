@@ -14,38 +14,66 @@ def get_config():
     return OmegaConf.merge(yaml_conf, cli_conf)
 
 
-def _run_one(snippet: str, tests: list[str], t_limit: int, q):
+from concurrent.futures import as_completed
+
+import textwrap
+
+def _run_one_pipe(snippet: str, tests: list[str], conn):
     try:
         ns = {}
         exec(textwrap.dedent(snippet), ns, ns)
         for stmt in tests:
             exec(stmt, ns, ns)
-        q.put(True)
+        conn.send(True)
+    except SystemExit:
+        conn.send(True)
     except Exception:
-        q.put(False)
+        conn.send(False)
+    finally:
+        try: conn.close()
+        except Exception: pass
 
-def _check_snippet(snippet: str, tests: list[str], t_limit: int) -> bool:
-    q = mp.Queue()
-    p = mp.Process(target=_run_one, args=(snippet, tests, t_limit, q))
+def _check_snippet(snippet: str, tests: list[str], t_limit: int,
+                   spawn_slack: float = 0.5) -> bool:
+    ctx = mp.get_context("spawn")
+    parent_conn, child_conn = ctx.Pipe(duplex=False)
+    p = ctx.Process(target=_run_one_pipe, args=(snippet, tests, child_conn), daemon=True)
     p.start()
-    p.join(t_limit)
-    if p.is_alive():
-        p.terminate(); p.join()
-        return False
-    return q.get_nowait() if not q.empty() else False
+    child_conn.close() 
 
-from concurrent.futures import ProcessPoolExecutor, as_completed
+    deadline = time.monotonic() + t_limit + spawn_slack
+    res = None
+    try:
+        while time.monotonic() < deadline:
+            if parent_conn.poll(0.01):
+                res = parent_conn.recv()
+                break
+            if not p.is_alive(): 
+                break
+        if res is None:
+            if p.is_alive():
+                p.terminate()
+            res = False
+    finally:
+        try: p.join(timeout=0.2)
+        except Exception: pass
+        try: parent_conn.close()
+        except Exception: pass
+    return bool(res)
 
-def evaluate_function_dataset(data: list[dict],
-                              n_workers: int | None = None):
-    n_workers = n_workers or mp.cpu_count()
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def evaluate_function_dataset(data: list[dict], n_workers: int | None = None):
+    import os
+    n_cpu = os.cpu_count() or 4
+    n_workers = max(1, int(n_workers)) if n_workers is not None else n_cpu
 
     for item in data:
         m_code = len(item["extracted_output"])
         m_test = len(item["test_list"])
         item["execution_result"] = [[None]  * m_test for _ in range(m_code)]
         item["correctness"]      = [[False] * m_test for _ in range(m_code)]
-        item.setdefault("step_map",         [])
+        item.setdefault("step_map", [])
 
     tasks = []
     for idx, item in enumerate(data):
@@ -54,29 +82,27 @@ def evaluate_function_dataset(data: list[dict],
             for j, test_stmt in enumerate(item["test_list"]):
                 tasks.append((idx, i, j, snippet, test_stmt, t_limit))
 
-    with ProcessPoolExecutor(max_workers=n_workers) as pool:
-        futures = {
-            pool.submit(_check_snippet, snippet, [test_stmt], t_limit): (idx, i, j)
-            for idx, i, j, snippet, test_stmt, t_limit in tasks
-        }
+    futures = {}
+    from tqdm.auto import tqdm
+    with ThreadPoolExecutor(max_workers=n_workers) as pool, \
+     tqdm(total=len(tasks), desc=f"Function tests ({n_workers} threads)",
+          dynamic_ncols=True, mininterval=0.1, miniters=1) as pbar:
+    
+        for idx, i, j, snippet, test_stmt, t_limit in tasks:
+            fut = pool.submit(_check_snippet, snippet, [test_stmt], t_limit)
+            futures[fut] = (idx, i, j)
 
-        for fut in tqdm(as_completed(futures),
-                        total=len(futures),
-                        desc=f"Function 2D tests ({n_workers} w)"):
+        for fut in as_completed(futures):
             idx, i, j = futures[fut]
-            ok = fut.result()
+            try:
+                ok = bool(fut.result()) 
+            except Exception:
+                ok = False
             data[idx]["execution_result"][i][j] = ok
             data[idx]["correctness"][i][j]      = ok
+            pbar.update(1)
 
     return data
-
-
-def _evaluate_item(item: dict) -> list[bool]:
-    t_limit  = item.get("test_time_limit", 1)
-    snippets = item["extracted_output"]
-    tests    = item["test_list"]
-    return [_check_snippet(s, tests, t_limit) for s in snippets]
-
 
 
 
