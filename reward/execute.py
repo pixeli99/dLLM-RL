@@ -22,48 +22,78 @@ from concurrent.futures import as_completed
 
 import textwrap
 
-def _run_one_pipe(snippet: str, tests: list[str], conn):
+def _run_many_pipe(snippet: str, tests: list[str], conn):
+    import textwrap
+    results = []
     try:
         ns = {}
         exec(textwrap.dedent(snippet), ns, ns)
         for stmt in tests:
-            exec(stmt, ns, ns)
-        conn.send(True)
+            try:
+                exec(stmt, ns, ns)
+                results.append(True)
+            except SystemExit:
+                results.append(True)
+            except Exception:
+                results.append(False)
+        conn.send(results)
     except SystemExit:
-        conn.send(True)
+        conn.send([True] * len(tests))
     except Exception:
-        conn.send(False)
+        conn.send([False] * len(tests))
     finally:
         try: conn.close()
         except Exception: pass
 
-def _check_snippet(snippet: str, tests: list[str], t_limit: int,
-                   spawn_slack: float = 0.5) -> bool:
-    ctx = mp.get_context("spawn")
+
+def _check_snippet_many(snippet: str, tests: list[str], t_limit: int,
+                        spawn_slack: float = 2.0) -> list[bool]:
+    import time, multiprocessing as mp
+    ctx = mp.get_context("spawn") 
     parent_conn, child_conn = ctx.Pipe(duplex=False)
-    p = ctx.Process(target=_run_one_pipe, args=(snippet, tests, child_conn), daemon=True)
+    p = ctx.Process(target=_run_many_pipe, args=(snippet, tests, child_conn), daemon=True)
     p.start()
-    child_conn.close() 
+    child_conn.close()
 
     deadline = time.monotonic() + t_limit + spawn_slack
     res = None
     try:
-        while time.monotonic() < deadline:
-            if parent_conn.poll(0.01):
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            wait = remaining if remaining < 0.05 else 0.05
+            if parent_conn.poll(wait):
+                try:
+                    res = parent_conn.recv()
+                except EOFError:
+                    res = None
+                break
+            if not p.is_alive():
+                if parent_conn.poll(0.05):
+                    try:
+                        res = parent_conn.recv()
+                    except EOFError:
+                        res = None
+                break
+
+        if res is None and parent_conn.poll(0.05):
+            try:
                 res = parent_conn.recv()
-                break
-            if not p.is_alive(): 
-                break
+            except EOFError:
+                res = None
+
         if res is None:
             if p.is_alive():
                 p.terminate()
-            res = False
+            res = [False] * len(tests)
     finally:
-        try: p.join(timeout=0.2)
+        try: p.join(timeout=0.5)
         except Exception: pass
         try: parent_conn.close()
         except Exception: pass
-    return bool(res)
+
+    return [bool(x) for x in res]
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -82,29 +112,31 @@ def evaluate_function_dataset(data: list[dict], n_workers: int | None = None):
     tasks = []
     for idx, item in enumerate(data):
         t_limit = item.get("test_time_limit", 1)
+        tests   = item["test_list"]
         for i, snippet in enumerate(item["extracted_output"]):
-            for j, test_stmt in enumerate(item["test_list"]):
-                tasks.append((idx, i, j, snippet, test_stmt, t_limit))
+            tasks.append((idx, i, snippet, tests, t_limit))
 
     futures = {}
     from tqdm.auto import tqdm
     with ThreadPoolExecutor(max_workers=n_workers) as pool, \
-     tqdm(total=len(tasks), desc=f"Function tests ({n_workers} threads)",
-          dynamic_ncols=True, mininterval=0.1, miniters=1) as pbar:
-    
-        for idx, i, j, snippet, test_stmt, t_limit in tasks:
-            fut = pool.submit(_check_snippet, snippet, [test_stmt], t_limit)
-            futures[fut] = (idx, i, j)
+        tqdm(total=len(tasks)*len(data[0]["test_list"]), desc=f"Function tests ({n_workers} threads)",
+            dynamic_ncols=True, mininterval=0.1, miniters=1) as pbar:
+
+        for idx, i, snippet, tests, t_limit in tasks:
+            fut = pool.submit(_check_snippet_many, snippet, tests, t_limit)
+            futures[fut] = (idx, i)
 
         for fut in as_completed(futures):
-            idx, i, j = futures[fut]
+            idx, i = futures[fut]
             try:
-                ok = bool(fut.result()) 
+                ok_list = fut.result()
             except Exception:
-                ok = False
-            data[idx]["execution_result"][i][j] = ok
-            data[idx]["correctness"][i][j]      = ok
-            pbar.update(1)
+                ok_list = [False] * len(data[idx]["test_list"])
+
+            for j, ok in enumerate(ok_list):
+                data[idx]["execution_result"][i][j] = bool(ok)
+                data[idx]["correctness"][i][j]      = bool(ok)
+                pbar.update(1)
 
     return data
 
