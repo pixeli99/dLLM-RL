@@ -23,7 +23,7 @@ from accelerate.logging import get_logger
 from accelerate.utils import set_seed
 
 
-from train.utils import get_config, flatten_omega_conf, AverageMeter
+from train.utils import get_config, flatten_omega_conf, AverageMeter, maybe_add_special_tokens
 
 from models import LLaDAModelLM
 from train.prompting_utils import UniversalPrompting
@@ -85,7 +85,7 @@ def main():
     accelerator = Accelerator(
         gradient_accumulation_steps=config.training.gradient_accumulation_steps,
         mixed_precision=config.training.mixed_precision,
-        log_with=None,
+        log_with="wandb",
         project_dir=config.experiment.logging_dir,
         split_batches=True,
     )
@@ -147,6 +147,15 @@ def main():
                                        ignore_id=-100)
     
     model = LLaDAModelLM.from_pretrained(pretrained_model, torch_dtype=torch.bfloat16)
+
+    # Add custom special tokens if provided and resize embeddings
+    try:
+        added_n = maybe_add_special_tokens(tokenizer, model, config)
+        if added_n > 0:
+            logger.info(f"Added {added_n} special tokens; resized embeddings to {len(tokenizer)}")
+    except Exception as e:
+        logger.warning(f"Failed to add special tokens: {e}")
+
     model = model.to(accelerator.device)
 
     mask_id = tokenizer.encode('<|mdm_mask|>')[0]
@@ -446,6 +455,11 @@ def main():
 
     from tqdm.auto import tqdm
 
+    global_step = 0
+    last_log_time = time.time()
+    accum_tokens = 0
+    accum_samples = 0
+
     for epoch in range(first_epoch, num_train_epochs):
         
         model.train()
@@ -478,6 +492,13 @@ def main():
                 print(loss_lm)
             accelerator.backward(loss_lm)
 
+            # accumulate tokens and samples for throughput stats
+            try:
+                accum_tokens += int(p_mask_lm.sum().item())
+                accum_samples += int(input_ids.size(0))
+            except Exception:
+                pass
+
             if (step + 1) % accelerator.gradient_accumulation_steps == 0:
                 if config.training.max_grad_norm is not None:
                     accelerator.clip_grad_norm_(model.parameters(),
@@ -485,6 +506,29 @@ def main():
 
                 optimizer.step()
                 lr_scheduler.step()
+                
+                # basic metrics logging
+                global_step += 1
+                now = time.time()
+                dt = max(now - last_log_time, 1e-8)
+                try:
+                    lr = optimizer.param_groups[0]["lr"]
+                except Exception:
+                    lr = None
+                metrics = {
+                    "train/loss": float(loss_lm.detach().item()),
+                    "train/lr": float(lr) if lr is not None else 0.0,
+                    "train/samples": accum_samples,
+                    "train/tokens": accum_tokens,
+                    "train/sps": accum_samples / dt,
+                    "train/tps": accum_tokens / dt,
+                    "train/epoch": epoch + 1,
+                }
+                accelerator.log(metrics, step=global_step)
+                last_log_time = now
+                accum_tokens = 0
+                accum_samples = 0
+
                 optimizer.zero_grad(set_to_none=True)
 
                 del input_ids, labels, p_mask_lm

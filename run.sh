@@ -1,0 +1,1 @@
+python3 data/prepare_think_sft.py /zju_0038/pengxiang/data_gen/s1k-sft-final-only.jsonl data/s1k_sft_final.json --prompt-template "Question:\n{question}\n" --pad-delete-prob 0.8 --pad-delete-min 2 --pad-delete-max 32 --pad-delete-token "<delete>" --seed 7

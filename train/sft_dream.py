@@ -34,7 +34,7 @@ from torch.utils.data.distributed import DistributedSampler
 
 SYSTEM_PROMPT_LEN = 28
 
-from train.utils import get_config, flatten_omega_conf, AverageMeter
+from train.utils import get_config, flatten_omega_conf, AverageMeter, maybe_add_special_tokens
 
 try:
     import apex
@@ -87,7 +87,7 @@ def main():
     accelerator = Accelerator(
         gradient_accumulation_steps=config.training.gradient_accumulation_steps,
         mixed_precision=config.training.mixed_precision,
-        log_with=None,
+        log_with="wandb",
         project_dir=config.experiment.logging_dir,
         split_batches=True,
     )
@@ -154,6 +154,14 @@ def main():
 
 
     model = DreamModel.from_pretrained(pretrained_model, torch_dtype=torch.bfloat16)
+
+    # Add custom special tokens if provided and resize embeddings
+    try:
+        added_n = maybe_add_special_tokens(tokenizer, model, config)
+        if added_n > 0:
+            logger.info(f"Added {added_n} special tokens; resized embeddings to {len(tokenizer)}")
+    except Exception as e:
+        logger.warning(f"Failed to add special tokens: {e}")
 
     
 
@@ -227,11 +235,174 @@ def main():
 
     
     @torch.no_grad()
+    def parse_structure_blocks(input_ids, tokenizer):
+        """Parse think blocks and summary block from input_ids"""
+        # Get special token ids
+        think_open_ids = []
+        think_close_ids = []
+        for i in range(1, 7):  # think 1-6
+            open_token = f"<think {i}>"
+            close_token = f"</think {i}>"
+            if open_token in tokenizer.get_added_vocab():
+                think_open_ids.append(tokenizer.convert_tokens_to_ids(open_token))
+                think_close_ids.append(tokenizer.convert_tokens_to_ids(close_token))
+
+        summary_open_id = tokenizer.convert_tokens_to_ids("<summary>") if "<summary>" in tokenizer.get_added_vocab() else None
+        summary_close_id = tokenizer.convert_tokens_to_ids("</summary>") if "</summary>" in tokenizer.get_added_vocab() else None
+
+        B, L = input_ids.shape
+        structure_info = []
+
+        for b in range(B):
+            seq = input_ids[b].tolist()
+            blocks = {"think_blocks": [], "summary_block": None}
+
+            # Find think blocks
+            for open_id, close_id in zip(think_open_ids, think_close_ids):
+                try:
+                    start_idx = seq.index(open_id)
+                    end_idx = seq.index(close_id, start_idx) + 1  # Include the closing tag
+                    blocks["think_blocks"].append((start_idx, end_idx))
+                except ValueError:
+                    continue  # This think block not found
+
+            # Find summary block
+            if summary_open_id and summary_close_id:
+                try:
+                    start_idx = seq.index(summary_open_id)
+                    end_idx = seq.index(summary_close_id, start_idx) + 1
+                    blocks["summary_block"] = (start_idx, end_idx)
+                except ValueError:
+                    pass  # Summary not found
+
+            structure_info.append(blocks)
+
+        return structure_info
+
+    def block_level_mask(input_ids, tokenizer, start_pos, lower_p=0.1, upper_p=0.9, mask_id=mask_id):
+        """Apply block-level masking to structured think data"""
+        B, L = input_ids.shape
+        device = input_ids.device
+
+        # Parse structure
+        structure_info = parse_structure_blocks(input_ids, tokenizer)
+
+        noisy_list, label_list, pmask_list = [], [], []
+
+        for b in range(B):
+            blocks = structure_info[b]
+            base_ids = input_ids[b]
+
+            # If no structure found, fallback to random masking
+            if not blocks["think_blocks"] and not blocks["summary_block"]:
+                # Simple random masking fallback
+                p = torch.empty(L, device=device).uniform_(lower_p, upper_p)
+                mask_pos = (torch.rand(L, device=device) < p)
+                mask_pos[:start_pos] = False  # Don't mask prompt
+
+                noisy_ids = base_ids.clone()
+                noisy_ids[mask_pos] = mask_id
+
+                noisy_list.append(noisy_ids)
+                label_list.append(base_ids)
+                pmask_list.append(mask_pos)
+                continue
+
+            # Strategy 1: Forward thinking (mask summary based on visible thinks)
+            # Strategy 2: Backward reasoning (keep summary, mask some thinks)
+            # Strategy 3: Partial paths (mask some complete think blocks)
+            strategies = ["forward", "backward", "partial", "mixed"]
+            weights = [0.35, 0.25, 0.25, 0.15]
+
+            for _ in range(3):  # Generate multiple masks per sample
+                strategy = torch.tensor(weights, device=device).multinomial(1).item()
+                strategy = strategies[strategy]
+
+                mask_pos = torch.zeros(L, dtype=torch.bool, device=device)
+
+                if strategy == "forward":
+                    # Mask summary with high prob, keep most thinks
+                    for start, end in blocks["think_blocks"]:
+                        if torch.rand(1, device=device) < 0.3:  # 30% chance to mask a think block
+                            mask_pos[start:end] = True
+
+                    if blocks["summary_block"]:
+                        start, end = blocks["summary_block"]
+                        if torch.rand(1, device=device) < 0.8:  # 80% chance to mask summary
+                            mask_pos[start:end] = True
+
+                elif strategy == "backward":
+                    # Keep summary, mask most thinks
+                    for start, end in blocks["think_blocks"]:
+                        if torch.rand(1, device=device) < 0.7:  # 70% chance to mask a think block
+                            mask_pos[start:end] = True
+
+                    # Keep summary visible (low mask prob)
+                    if blocks["summary_block"]:
+                        start, end = blocks["summary_block"]
+                        if torch.rand(1, device=device) < 0.2:  # Only 20% chance to mask
+                            mask_pos[start:end] = True
+
+                elif strategy == "partial":
+                    # Randomly mask complete think blocks
+                    num_blocks = len(blocks["think_blocks"])
+                    if num_blocks > 0:
+                        # Decide how many blocks to mask
+                        num_to_mask = torch.randint(1, max(2, num_blocks), (1,), device=device).item()
+                        indices = torch.randperm(num_blocks, device=device)[:num_to_mask]
+
+                        for idx in indices:
+                            start, end = blocks["think_blocks"][idx]
+                            mask_pos[start:end] = True
+
+                    # Summary: 50/50 chance
+                    if blocks["summary_block"]:
+                        start, end = blocks["summary_block"]
+                        if torch.rand(1, device=device) < 0.5:
+                            mask_pos[start:end] = True
+
+                else:  # mixed
+                    # Apply partial random masking within blocks
+                    for start, end in blocks["think_blocks"]:
+                        block_mask_prob = torch.rand(1, device=device).item() * 0.7 + 0.1  # 0.1-0.8
+                        block_mask = torch.rand(end - start, device=device) < block_mask_prob
+                        mask_pos[start:end] = block_mask
+
+                    if blocks["summary_block"]:
+                        start, end = blocks["summary_block"]
+                        summary_mask_prob = torch.rand(1, device=device).item() * 0.6 + 0.2  # 0.2-0.8
+                        summary_mask = torch.rand(end - start, device=device) < summary_mask_prob
+                        mask_pos[start:end] = summary_mask
+
+                # Never mask the prompt
+                mask_pos[:start_pos] = False
+
+                # Skip if no masking at all
+                if not mask_pos.any():
+                    continue
+
+                noisy_ids = base_ids.clone()
+                noisy_ids[mask_pos] = mask_id
+
+                noisy_list.append(noisy_ids)
+                label_list.append(base_ids)
+                pmask_list.append(mask_pos)
+
+        if len(noisy_list) == 0:
+            # Fallback if no valid masks generated
+            return input_ids, input_ids, torch.ones_like(input_ids, dtype=torch.bool)
+
+        noisy_batch = torch.stack(noisy_list)
+        labels_lm = torch.stack(label_list)
+        p_mask = torch.stack(pmask_list)
+
+        return noisy_batch, labels_lm, p_mask
+
     def prepare_inputs_and_labels_for_text(
         prompt, response, step_map, eps=1e-3, mask_id=mask_id
     ):
         input_ids_lm, labels_lm, start_pos, drop_num = uni_prompting((prompt, response))
-        
+
         B, L = input_ids_lm.shape
         max_gen_len = config.training.max_gen_length
         if max_gen_len + start_pos < L:
@@ -249,59 +420,69 @@ def main():
 
 
         if config.training.method == "semi-ar":
+            # Check if we should use block-level masking for structured data
+            use_block_mask = config.training.get("use_block_mask", False)
 
-            noisy_list, label_list, pmask_list = [], [], []
+            if use_block_mask:
+                # Use the new block-level masking for structured think data
+                noisy_batch, labels_lm, p_mask = block_level_mask(
+                    input_ids_lm, tokenizer, start_pos,
+                    lower_p=lower, upper_p=upper, mask_id=mask_id
+                )
+            else:
+                # Original semi-AR method
+                noisy_list, label_list, pmask_list = [], [], []
 
-            device = input_ids_lm.device
-            B, L   = input_ids_lm.shape
-
-            
-            for b in range(B):
-                # 1) transform step_map
-                order_list = list(step_map[b])
-                order_list = collapse_k_unique(order_list, config.training.block_size)
-                order = torch.as_tensor(order_list, device=device)
-                order_full = torch.full((L_after,), -1, device=device)
-                order_full[start_pos:] = order[: L_after - start_pos]
-
-                uniq_steps = torch.unique(order_full[start_pos:], sorted=True)
-
-                base_ids = input_ids_lm[b]  # (L,)
-
-                if config.training.post_num is not None:
-                    pad_mask_b = (base_ids == pad_id)
-                    pad_mask_b[:start_pos] = False
-                    keep_first_pad_b = pad_mask_b & (torch.cumsum(pad_mask_b.int(), dim=0) <= config.training.post_num)
-                    tail_pad_b       = pad_mask_b & ~keep_first_pad_b
-                else:
-                    keep_first_pad_b = torch.zeros(L, dtype=torch.bool, device=device)
-                    tail_pad_b       = torch.zeros(L, dtype=torch.bool, device=device)
+                device = input_ids_lm.device
+                B, L   = input_ids_lm.shape
 
 
-                for i in range(0, len(uniq_steps)):
-                    
-                    block_mask = (order_full == uniq_steps[i])
-                    p = torch.empty(L, device=device).uniform_(lower, upper)
-                    block_mask = (torch.rand(L, device=device) < p) & block_mask
-                    
-                    noisy_ids = base_ids.clone()
-                    mask_pos  = (order_full > uniq_steps[i]) | block_mask
-                    noisy_ids[mask_pos] = mask_id
+                for b in range(B):
+                    # 1) transform step_map
+                    order_list = list(step_map[b])
+                    order_list = collapse_k_unique(order_list, config.training.block_size)
+                    order = torch.as_tensor(order_list, device=device)
+                    order_full = torch.full((L_after,), -1, device=device)
+                    order_full[start_pos:] = order[: L_after - start_pos]
 
-                    pmask_this = block_mask & ~tail_pad_b
+                    uniq_steps = torch.unique(order_full[start_pos:], sorted=True)
 
-                    if not pmask_this.any():
-                        continue
+                    base_ids = input_ids_lm[b]  # (L,)
 
-                    noisy_list.append(noisy_ids)
-                    label_list.append(labels_lm[b])
-                    pmask_list.append(pmask_this)
+                    if config.training.post_num is not None:
+                        pad_mask_b = (base_ids == pad_id)
+                        pad_mask_b[:start_pos] = False
+                        keep_first_pad_b = pad_mask_b & (torch.cumsum(pad_mask_b.int(), dim=0) <= config.training.post_num)
+                        tail_pad_b       = pad_mask_b & ~keep_first_pad_b
+                    else:
+                        keep_first_pad_b = torch.zeros(L, dtype=torch.bool, device=device)
+                        tail_pad_b       = torch.zeros(L, dtype=torch.bool, device=device)
 
-                del order, order_full, uniq_steps
 
-            noisy_batch = torch.stack(noisy_list)
-            labels_lm   = torch.stack(label_list)
-            p_mask      = torch.stack(pmask_list)
+                    for i in range(0, len(uniq_steps)):
+
+                        block_mask = (order_full == uniq_steps[i])
+                        p = torch.empty(L, device=device).uniform_(lower, upper)
+                        block_mask = (torch.rand(L, device=device) < p) & block_mask
+
+                        noisy_ids = base_ids.clone()
+                        mask_pos  = (order_full > uniq_steps[i]) | block_mask
+                        noisy_ids[mask_pos] = mask_id
+
+                        pmask_this = block_mask & ~tail_pad_b
+
+                        if not pmask_this.any():
+                            continue
+
+                        noisy_list.append(noisy_ids)
+                        label_list.append(labels_lm[b])
+                        pmask_list.append(pmask_this)
+
+                    del order, order_full, uniq_steps
+
+                noisy_batch = torch.stack(noisy_list)
+                labels_lm   = torch.stack(label_list)
+                p_mask      = torch.stack(pmask_list)
         
 
             
@@ -540,6 +721,11 @@ def main():
 
     from tqdm.auto import tqdm
 
+    global_step = 0
+    last_log_time = time.time()
+    accum_tokens = 0
+    accum_samples = 0
+
     for epoch in range(first_epoch, num_train_epochs):
         
         model.train()
@@ -573,12 +759,42 @@ def main():
                 print(loss_lm)
             accelerator.backward(loss_lm)
 
+            # accumulate tokens and samples for throughput stats
+            try:
+                accum_tokens += int(p_mask_lm.sum().item())
+                accum_samples += int(input_ids.size(0))
+            except Exception:
+                pass
+
             if (step + 1) % accelerator.gradient_accumulation_steps == 0:
                 if config.training.max_grad_norm is not None:
                     accelerator.clip_grad_norm_(model.parameters(), config.training.max_grad_norm)
 
                 optimizer.step()
                 lr_scheduler.step()
+                
+                # basic metrics logging
+                global_step += 1
+                now = time.time()
+                dt = max(now - last_log_time, 1e-8)
+                try:
+                    lr = optimizer.param_groups[0]["lr"]
+                except Exception:
+                    lr = None
+                metrics = {
+                    "train/loss": float(loss_lm.detach().item()),
+                    "train/lr": float(lr) if lr is not None else 0.0,
+                    "train/samples": accum_samples,
+                    "train/tokens": accum_tokens,
+                    "train/sps": accum_samples / dt,
+                    "train/tps": accum_tokens / dt,
+                    "train/epoch": epoch + 1,
+                }
+                accelerator.log(metrics, step=global_step)
+                last_log_time = now
+                accum_tokens = 0
+                accum_samples = 0
+
                 optimizer.zero_grad(set_to_none=True)
 
                 del input_ids, labels, p_mask_lm

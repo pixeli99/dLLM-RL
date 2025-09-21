@@ -14,7 +14,7 @@ model:
 
 # sft dataset
 dataset:
-    optimization_data: "dataset_name" # "sft_openr1math_llada"
+    optimization_data: "s1k_sft_final" # processed by data/prepare_think_sft.py
 
 training:
     gradient_checkpointing_enable: False # if the sequence is very larger, set as True
@@ -31,8 +31,8 @@ training:
     block_size: 16 # use for semi-ar
     mask_times_per_sample: 1 # for random_masking
     post_num: 0 # number of pad token need to be trained for each data point
-    max_gen_length: 1024
-    max_prompt_len: 784
+    max_gen_length: 2048
+    max_prompt_len: 1024
 
 
 
@@ -53,4 +53,21 @@ lr_scheduler:
         warmup_steps: 0
         min_lr_scale: 1.0
 
+tokenizer:
+    additional_special_tokens:
+      - '<think 1>'
+      - '</think 1>'
+      - '<think 2>'
+      - '</think 2>'
+      - '<think 3>'
+      - '</think 3>'
+      - '<think 4>'
+      - '</think 4>'
+      - '<think 5>'
+      - '</think 5>'
+      - '<think 6>'
+      - '</think 6>'
+      - '<summary>'
+      - '</summary>'
+      - '<delete>'
 

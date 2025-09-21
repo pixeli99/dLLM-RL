@@ -1,37 +1,37 @@
 wandb:
-  entity: null
   resume: 'auto'
 
 experiment:
     project: "sft_dream" # need to be same of this file name
-    num_node: 4 # the number of machines you have
+    num_node: 1 # the number of machines you have
 
 
 model:
-    pretrained_model: "/abs/path/of/model" # absolute path of your model
+    pretrained_model: "Dream-org/Dream-v0-Instruct-7B" # absolute path of your model
     optimized_name: "optimized" # the output name for your optimized model, will be saved under sft_dream/ckpt
 
 # sft dataset
 dataset:
-    optimization_data: "dataset_name" # "sft_openr1math_dream"
+    optimization_data: "s1k_sft_final" # processed by data/prepare_think_sft.py
 
 training:
-    gradient_checkpointing_enable: False # if the sequence is very larger, set as True
-    gradient_accumulation_steps: 2
-    batch_size_lm: 2 # the total batch size is num_node * num_gpu_per_node * gradient_accumulation_steps * batch_size_lm
+    gradient_checkpointing_enable: True # MUST be True for such long sequences
+    gradient_accumulation_steps: 2 # Increased for better gradient stability
+    batch_size_lm: 2 # Keep at 1 due to long sequences
     mixed_precision: "bf16"
     enable_tf32: True
     seed: 10086
-    num_train_epochs: 1
+    num_train_epochs: 3
     max_grad_norm: 1
-    method: "semi-ar" # "random_masking""semi-ar""ar" 3 different methods to choose
+    method: "random_masking" # "random_masking""semi-ar""ar" 3 different methods to choose
     lower_p: 0.1
     upper_p: 0.9
     block_size: 16 # use for semi-ar
+    use_block_mask: False # Enable block-level masking for structured think data
     mask_times_per_sample: 35 # for random_masking
     post_num: 0 # number of pad token need to be trained for each data point
-    max_gen_length: 1024
-    max_prompt_len: 784
+    max_gen_length: 8192 # Adjusted based on data analysis (covers ~80% of data)
+    max_prompt_len: 1024
 
 
 
@@ -52,4 +52,21 @@ lr_scheduler:
         warmup_steps: 0
         min_lr_scale: 1.0
 
+tokenizer:
+    additional_special_tokens:
+      - '<think 1>'
+      - '</think 1>'
+      - '<think 2>'
+      - '</think 2>'
+      - '<think 3>'
+      - '</think 3>'
+      - '<think 4>'
+      - '</think 4>'
+      - '<think 5>'
+      - '</think 5>'
+      - '<think 6>'
+      - '</think 6>'
+      - '<summary>'
+      - '</summary>'
+      - '<delete>'
 

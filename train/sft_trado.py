@@ -34,7 +34,7 @@ from torch.utils.data import Dataset, DataLoader
 
 SYSTEM_PROMPT_LEN = 28
 
-from train.utils import get_config, flatten_omega_conf, AverageMeter
+from train.utils import get_config, flatten_omega_conf, AverageMeter, maybe_add_special_tokens
 
 try:
     import apex
@@ -89,7 +89,7 @@ def main():
     accelerator = Accelerator(
         gradient_accumulation_steps=config.training.gradient_accumulation_steps,
         mixed_precision=config.training.mixed_precision,
-        log_with=None,
+        log_with="wandb",
         project_dir=config.experiment.logging_dir,
         split_batches=True,
     )
@@ -156,6 +156,14 @@ def main():
     #from transformers import AutoModelForCausalLM
     #model = AutoModelForCausalLM.from_pretrained(pretrained_model, trust_remote_code=True, torch_dtype="auto")
     model = SDARForCausalLM.from_pretrained(pretrained_model, trust_remote_code=True, torch_dtype="auto")
+
+    # Add custom special tokens if provided and resize embeddings
+    try:
+        added_n = maybe_add_special_tokens(tokenizer, model, config)
+        if added_n > 0:
+            logger.info(f"Added {added_n} special tokens; resized embeddings to {len(tokenizer)}")
+    except Exception as e:
+        logger.warning(f"Failed to add special tokens: {e}")
 
     # calculate loss ourselves, needs logits，so aviod fuse CE
     if hasattr(model, "config"):
@@ -679,6 +687,11 @@ def main():
 
     from tqdm.auto import tqdm
 
+    global_step = 0
+    last_log_time = time.time()
+    accum_tokens = 0
+    accum_samples = 0
+
     for epoch in range(first_epoch, num_train_epochs):
         
         model.train()
@@ -715,14 +728,43 @@ def main():
             
             accelerator.backward(loss_lm)
 
+            # accumulate tokens and samples for throughput stats
+            try:
+                accum_tokens += int(p_mask.sum().item())
+                accum_samples += int(extended_input_ids.size(0))
+            except Exception:
+                pass
+
             if (step + 1) % accelerator.gradient_accumulation_steps == 0:
                 if config.training.max_grad_norm is not None:
                     accelerator.clip_grad_norm_(model.parameters(), config.training.max_grad_norm)
 
                 optimizer.step()
                 lr_scheduler.step()
-                optimizer.zero_grad(set_to_none=True)
+                
+                # basic metrics logging
+                global_step += 1
+                now = time.time()
+                dt = max(now - last_log_time, 1e-8)
+                try:
+                    lr = optimizer.param_groups[0]["lr"]
+                except Exception:
+                    lr = None
+                metrics = {
+                    "train/loss": float(loss_lm.detach().item()),
+                    "train/lr": float(lr) if lr is not None else 0.0,
+                    "train/samples": accum_samples,
+                    "train/tokens": accum_tokens,
+                    "train/sps": accum_samples / dt,
+                    "train/tps": accum_tokens / dt,
+                    "train/epoch": epoch + 1,
+                }
+                accelerator.log(metrics, step=global_step)
+                last_log_time = now
+                accum_tokens = 0
+                accum_samples = 0
 
+                optimizer.zero_grad(set_to_none=True)
                 torch.cuda.empty_cache()
             
 

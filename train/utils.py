@@ -51,6 +51,35 @@ def flatten_omega_conf(cfg: Any, resolve: bool = False) -> List[Tuple[str, Any]]
 ##################################################
 #              training utils
 ##################################################
+def maybe_add_special_tokens(tokenizer, model, config) -> int:
+    """Add additional special tokens from config.tokenizer.additional_special_tokens
+    and resize model embeddings accordingly. Returns the number of tokens added.
+
+    This is a no-op if the config section or list is missing/empty.
+    """
+    try:
+        tok_conf = config.get("tokenizer", None)
+    except Exception:
+        tok_conf = None
+
+    specials = []
+    if tok_conf is not None:
+        try:
+            specials = list(tok_conf.get("additional_special_tokens", []))
+        except Exception:
+            # OmegaConf DictConfig also supports attribute access
+            specials = list(getattr(tok_conf, "additional_special_tokens", []))
+
+    if not specials:
+        return 0
+
+    added = tokenizer.add_special_tokens({"additional_special_tokens": specials})
+    if added > 0 and hasattr(model, "resize_token_embeddings"):
+        # Some custom models expose resize via PreTrainedModel
+        model.resize_token_embeddings(len(tokenizer))
+    return added
+
+
 def soft_target_cross_entropy(logits, targets, soft_targets):
     # ignore the first token from logits and targets (class id token)
     logits = logits[:, 1:]
