@@ -12,12 +12,12 @@ model:
 
 # sft dataset
 dataset:
-    optimization_data: "s1k_sft_final" # processed by data/prepare_think_sft.py
+    optimization_data: "parathinker_math_sft" # processed by data/prepare_think_sft.py
 
 training:
     gradient_checkpointing_enable: True # MUST be True for such long sequences
-    gradient_accumulation_steps: 2 # Increased for better gradient stability
-    batch_size_lm: 2 # Keep at 1 due to long sequences
+    gradient_accumulation_steps: 1 # Increased for better gradient stability
+    batch_size_lm: 8 # Keep at 1 due to long sequences
     mixed_precision: "bf16"
     enable_tf32: True
     seed: 10086
