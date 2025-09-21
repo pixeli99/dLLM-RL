@@ -330,7 +330,10 @@ if __name__ == "__main__":
                     top_k = None
                 for j in range(len(remasking_strategy_list)):
                     remasking_strategy = remasking_strategy_list[j]
-                    block_size = block_size_list[j]
+                    if model_base == "dream":
+                        block_size = block_size_list[j]
+                    elif model_base == "llada" or model_base == "mmada":
+                        block_size = cfg.evaluation.block_size
                     sample(worker_hosts, epoch, cfg, "evaluation", model_base, block_size = block_size, top_k = top_k, remasking_strategy = remasking_strategy)
                     if is_code_task:
                         execute(worker_hosts, epoch, cfg, "evaluation")
