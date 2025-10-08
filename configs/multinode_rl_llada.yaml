@@ -51,7 +51,7 @@ rollout:
     target: "confidence" # target to decide which tokens to unmask, eg. confidence, margin_confidence and neg_entropy
     dynamic_threshold: 0.95 # no use for "low_confidence_static"
     block_size: 32
-    further_horizon: 32
+    further_horizon: 128
     use_cache: True
 
 execute:

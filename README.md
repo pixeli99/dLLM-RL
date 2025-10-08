@@ -245,17 +245,6 @@ accelerate launch \
 # ...
 ```
 
-## 📖 Citation
-
-```
-@article{wang2025trado,
-  title={Revolutionizing Reinforcement Learning Framework for Diffusion Large Language Models},
-  author={Wang, Yinjie and Yang, Ling and Li, Bowen and Tian, Ye and Shen, Ke and Wang, Mengdi},
-  journal={arXiv preprint arXiv:2509.06949},
-  year={2025}
-}
-```
-
 
 ## 🤝 Acknowledgement
 
@@ -272,11 +261,16 @@ and theoretical foundations:
 [MDLM](https://arxiv.org/pdf/2406.07524), [DiffuLLaMA](https://arxiv.org/abs/2410.17891), [Block Diffusion](https://arxiv.org/abs/2503.09573).
 
 
-## 💬 Discussion
+## 📖 Citation
 
-Please do not hesitate to report any issues or difficulties you encounter.
-
-
+```
+@article{wang2025revolutionizing,
+  title={Revolutionizing reinforcement learning framework for diffusion large language models},
+  author={Wang, Yinjie and Yang, Ling and Li, Bowen and Tian, Ye and Shen, Ke and Wang, Mengdi},
+  journal={arXiv preprint arXiv:2509.06949},
+  year={2025}
+}
+```
 
 
 

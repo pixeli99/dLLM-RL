@@ -6,7 +6,6 @@ from transformers import AutoTokenizer
 import torch.multiprocessing as mp
 # Added imports for profiling
 import torch
-from torch import nn
 from contextlib import nullcontext
 import torch.profiler as torch_profiler
 
@@ -15,7 +14,6 @@ from jetengine_ext.sampling_params import SamplingParams
 from jetengine_ext.engine.sequence import Sequence, RunType
 from jetengine_ext.engine.scheduler import Scheduler
 from jetengine_ext.engine.model_runner import ModelRunner
-from jetengine_ext.utils.loader import load_from_hf_model
 
 
 class LLMEngine:
@@ -41,46 +39,7 @@ class LLMEngine:
 
         self.config = config
         self.scheduler = Scheduler(config)
-        self.scheduler.consistent_sampling_params = False
         atexit.register(self.exit)
-
-    def offload_parameters(self, include_buffers: bool = False):
-        """
-        Replace all parameter (and buffer) storages with meta tensors.
-        Keeps shapes/dtypes, frees GPU/CPU memory.
-        """
-
-        def offload_parameters_keep_buffers(model: torch.nn.Module):
-            """
-            Move *parameters* to meta to free memory while keeping buffers unchanged.
-            Works for any module tree.
-            """
-            # 1) Snapshot real buffers (module reference + buffer name + tensor)
-            saved_buffers = []
-            for mod in model.modules():
-                for bname, buf in list(mod._buffers.items()):
-                    if buf is not None:
-                        saved_buffers.append((mod, bname, buf))
-
-            # 2) Move everything to meta
-            model.to_empty(device=torch.device("meta"))
-
-            # 3) Restore the saved, real buffers
-            for mod, bname, buf in saved_buffers:
-                # Reattach the original tensor (device/dtype preserved)
-                mod._buffers[bname] = buf
-
-            torch.cuda.empty_cache()
-        if include_buffers:
-            self.model_runner.model.to_empty(device=torch.device("meta"))
-        else:
-            offload_parameters_keep_buffers(self.model_runner.model)
-
-        print("Successfully cleaned old parameters (buffers kept)." if not include_buffers
-              else "Successfully cleaned old parameters and buffers.")
-
-    def reload_parameters(self, hf_model: nn.Module):
-        load_from_hf_model(self.model_runner.model, hf_model=hf_model)
 
     def exit(self):
         self.model_runner.call("exit")
@@ -91,10 +50,6 @@ class LLMEngine:
     def add_request(self, prompt: str | list[int], sampling_params: SamplingParams):
         if isinstance(prompt, str):
             prompt = self.tokenizer.encode(prompt)
-        if isinstance(prompt, list):
-            if self.tokenizer.pad_token_id in prompt:
-                start = prompt.index(self.tokenizer.pad_token_id) + 1
-                prompt = prompt[start:]
         seq = Sequence(prompt, self.config.mask_token_id, sampling_params)
         seq.eos_token_id = self.tokenizer.eos_token_id
         self.scheduler.add(seq)
@@ -108,21 +63,20 @@ class LLMEngine:
         self.scheduler.postprocess(scheduled_seqs, logits, run_type)
         
         #finished_outputs = [(seq.seq_id, seq.completion_token_ids) for seq in scheduled_seqs if seq.is_finished]
-        
+
         finished_outputs = [
             (seq.seq_id, seq.completion_token_ids, seq.first_unmask_steps)
             for seq in scheduled_seqs
             if seq.is_finished
         ]
 
+        
         # Throughput calculation needs to be adapted for block-wise generation
         num_tokens = [self.scheduler.running[i].num_to_transfer if hasattr(self.scheduler.running[i], 'num_to_transfer') else 0 for i in range(len(self.scheduler.running))]
         return finished_outputs, sum(num_tokens)
 
     def is_finished(self):
         return self.scheduler.is_finished()
-
-
 
 
     def _clean_token_ids(self, token_ids):
@@ -149,8 +103,6 @@ class LLMEngine:
         ids = self._clean_token_ids(token_ids)
         # skip_special_tokens can be True or False; doesn't affect the None issue
         return self.tokenizer.decode(ids, skip_special_tokens=False)
-    
-
 
     def generate(
         self,
@@ -168,7 +120,6 @@ class LLMEngine:
             pbar = tqdm(total=len(prompts), desc="Generating", dynamic_ncols=True)
         if not isinstance(sampling_params, list):
             sampling_params = [sampling_params] * len(prompts)
-            self.scheduler.consistent_sampling_params = True
         for prompt, sp in zip(prompts, sampling_params):
             self.add_request(prompt, sp)
         outputs = {}
@@ -220,7 +171,6 @@ class LLMEngine:
             }
             for item in outputs
         ]
-
         if use_tqdm:
             pbar.close()
         return outputs
@@ -242,7 +192,6 @@ class LLMEngine:
         total = len(prompts)
         if not isinstance(sampling_params, list):
             sampling_params = [sampling_params] * total
-            self.scheduler.consistent_sampling_params = True
 
         if max_active is None:
             max_active = getattr(self.scheduler, "max_num_seqs", 32)
@@ -313,6 +262,7 @@ class LLMEngine:
             }
             for item in outputs_list
         ]
+
 
         if use_tqdm:
             pbar.close()

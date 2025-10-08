@@ -1,6 +1,7 @@
 from copy import copy
 from enum import Enum, auto
 from itertools import count
+
 from jetengine_ext.sampling_params import SamplingParams
 
 
@@ -20,8 +21,9 @@ class Sequence:
     block_size = 256
     counter = count()
 
-    def __init__(self, prompt_token_ids: list[int], mask_token_id: int, sampling_params=SamplingParams()):
+    def __init__(self, prompt_token_ids: list[int], mask_token_id: int, sampling_params = SamplingParams()):
         self.seq_id = next(Sequence.counter)
+
         self.block_length = sampling_params.block_length
         self.prompt_token_ids = prompt_token_ids
         prompt_len = len(self.prompt_token_ids)
@@ -38,7 +40,6 @@ class Sequence:
         self.intermediate_block_tokens = first_denoise_part + [mask_token_id] * (self.block_length - len(first_denoise_part))
         self.num_to_transfer = 0
         self.current_denoising_step = 0
-
 
         self.first_unmask_steps: list[int] = []
         self.block_first_unmask_steps: list[int] | None = [0] * len(self.intermediate_block_tokens)
@@ -60,7 +61,6 @@ class Sequence:
         self.denoising_steps = sampling_params.denoising_steps
         self.remasking_strategy = sampling_params.remasking_strategy
         self.dynamic_threshold = sampling_params.dynamic_threshold
-        self.eb_threshold = sampling_params.eb_threshold
         self.mask_token_id = mask_token_id
         self.num_transfer_tokens_per_step = self._get_num_transfer_tokens()
 
@@ -86,6 +86,7 @@ class Sequence:
         self.current_denoising_step = 0
         self.intermediate_block_tokens = [self.mask_token_id] * self.block_length
         self.status = SequenceStatus.DENOISING
+        self.block_first_unmask_steps = [0] * len(self.intermediate_block_tokens)
 
     '''
     def commit_block(self, block_tokens: list[int]):
@@ -106,10 +107,8 @@ class Sequence:
         self.intermediate_block_tokens = []
 
         if self.num_tokens >= self.num_prompt_tokens + self.max_tokens:
-             self.status = SequenceStatus.FINISHED'''
-    
-
-
+             self.status = SequenceStatus.FINISHED
+    '''
 
 
 
@@ -147,12 +146,8 @@ class Sequence:
 
         if self.num_tokens >= self.num_prompt_tokens + self.max_tokens:
             self.status = SequenceStatus.FINISHED
-
-
-    
-
-
-
+            
+        
 
     def get_len_for_next_step(self):
         return self.num_tokens + self.block_length
@@ -204,16 +199,6 @@ class Sequence:
         self.last_token = token_id
         self.num_tokens += 1
 
-    '''
-    def __getstate__(self):
-        # Simplified for multiprocessing; customize as needed
-        return (self.seq_id, self.status, self.token_ids, self.num_tokens, self.num_prompt_tokens, 
-                self.num_cached_tokens, self.block_table, self.intermediate_block_tokens, self.current_denoising_step)
-
-    def __setstate__(self, state):
-        (self.seq_id, self.status, self.token_ids, self.num_tokens, self.num_prompt_tokens, 
-         self.num_cached_tokens, self.block_table, self.intermediate_block_tokens, self.current_denoising_step) = state'''
-    
     def __getstate__(self):
         # Simplified for multiprocessing; customize as needed
         return (self.seq_id, self.status, self.token_ids, self.num_tokens, self.num_prompt_tokens, 
@@ -224,6 +209,4 @@ class Sequence:
         (self.seq_id, self.status, self.token_ids, self.num_tokens, self.num_prompt_tokens, 
          self.num_cached_tokens, self.block_table, self.intermediate_block_tokens, self.current_denoising_step,
          self.first_unmask_steps, self.block_first_unmask_steps, self.global_denoising_step) = state
-    
-    
 
