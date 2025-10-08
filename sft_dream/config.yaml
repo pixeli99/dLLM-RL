@@ -1,6 +1,6 @@
 wandb:
   resume: auto
-  run_id: t6cc3rb5
+  run_id: h64zqfbq
 experiment:
   project: sft_dream
   num_node: 1
@@ -9,11 +9,11 @@ model:
   pretrained_model: Dream-org/Dream-v0-Instruct-7B
   optimized_name: optimized
 dataset:
-  optimization_data: s1k_sft_final
+  optimization_data: sft_math8k
 training:
   gradient_checkpointing_enable: true
-  gradient_accumulation_steps: 2
-  batch_size_lm: 2
+  gradient_accumulation_steps: 1
+  batch_size_lm: 8
   mixed_precision: bf16
   enable_tf32: true
   seed: 10086
@@ -22,12 +22,12 @@ training:
   method: random_masking
   lower_p: 0.1
   upper_p: 0.9
-  block_size: 16
+  block_size: 128
   use_block_mask: false
   mask_times_per_sample: 35
   post_num: 0
-  max_gen_length: 8192
-  max_prompt_len: 1024
+  max_gen_length: 2048
+  max_prompt_len: 512
 optimizer:
   name: adamw
   params:
@@ -51,12 +51,6 @@ tokenizer:
   - </think 2>
   - <think 3>
   - </think 3>
-  - <think 4>
-  - </think 4>
-  - <think 5>
-  - </think 5>
-  - <think 6>
-  - </think 6>
   - <summary>
   - </summary>
   - <delete>

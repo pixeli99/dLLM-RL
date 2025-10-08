@@ -1,1 +1,6 @@
 *.pyc
+sft_trado/
+sft_dream/
+.venv/
+.vscode/
+trado_eval/

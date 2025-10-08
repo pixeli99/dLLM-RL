@@ -54,6 +54,14 @@ if __name__ == "__main__":
                 cwd='sample',
                 check=True,
             )
+        elif model_base == "our":
+            subprocess.run(
+                f'python our_sample.py '
+                f'config=../configs/{project_name}.yaml ',
+                shell=True,
+                cwd='sample',
+                check=True,
+            )
     
     def reward():
         cprint(f"This is the rewarding.", color = "green")
@@ -85,7 +93,6 @@ if __name__ == "__main__":
         execute()
     
     reward()
-
 
 
 

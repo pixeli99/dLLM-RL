@@ -87,7 +87,7 @@ def main():
     accelerator = Accelerator(
         gradient_accumulation_steps=config.training.gradient_accumulation_steps,
         mixed_precision=config.training.mixed_precision,
-        log_with="wandb",
+        log_with="tensorboard",
         project_dir=config.experiment.logging_dir,
         split_batches=True,
     )
@@ -689,7 +689,7 @@ def main():
             logits = model(input_ids, attention_mask=attn_mask, is_causal=False).logits
         else:
             attention_mask = make_attention_mask(input_ids, pad_id, start_pos)
-            logits = model(input_ids=input_ids, attention_mask=attention_mask, is_casual=False).logits
+            logits = model(input_ids=input_ids, attention_mask=attention_mask, is_causal=False).logits
         
         B, T, V = logits.shape
 

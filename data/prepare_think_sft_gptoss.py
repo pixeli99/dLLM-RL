@@ -78,16 +78,24 @@ def build_record(
     pad_min: int,
     pad_max: int,
 ) -> Dict[str, str]:
-    question = (entry.get("question") or "").strip()
+    question = (entry.get("origin_question") or entry.get("question") or "").strip()
     if not question:
         raise ValueError(f"Entry {entry.get('id', '<unknown>')} is missing a question")
 
     paths_raw = entry.get("paths")
-    if not isinstance(paths_raw, dict) or not paths_raw:
-        raise ValueError(f"Entry {entry.get('id', '<unknown>')} must contain a non-empty 'paths' dict")
+    if isinstance(paths_raw, list):
+        paths_map: Dict[str, str] = {str(i + 1): (p or "") for i, p in enumerate(paths_raw)}
+    elif isinstance(paths_raw, dict):
+        paths_map = {str(k): (v or "") for k, v in paths_raw.items()}
+    else:
+        raise ValueError(
+            f"Entry {entry.get('id', '<unknown>')} must contain a non-empty 'paths' list or dict"
+        )
+    if not paths_map:
+        raise ValueError(f"Entry {entry.get('id', '<unknown>')} has empty 'paths'")
 
     path_blocks = format_paths(
-        paths_raw,
+        paths_map,
         rng=rng,
         pad_prob=pad_prob,
         pad_token=pad_token,
@@ -106,6 +114,42 @@ def build_record(
         summary_seq = []
     else:
         summary_seq = list(summary_raw)
+
+    # Fallback: derive final answer from chat-like 'responses' if no explicit summaries
+    def _extract_final_from_responses(responses: Any) -> str:
+        if not isinstance(responses, list) or not responses:
+            return ""
+        candidates = []
+        for item in responses:
+            if not isinstance(item, dict):
+                continue
+            resp_text = item.get("response")
+            if not isinstance(resp_text, str) or not resp_text.strip():
+                continue
+            is_truncated = item.get("is_truncated")
+            response_length = item.get("response_length") or 0
+            candidates.append((0 if is_truncated in (0, False, None) else 1, -int(response_length), resp_text))
+        if not candidates:
+            return ""
+        candidates.sort()
+        chat_blob = candidates[0][2]
+        token = "<|start|>assistant<|channel|>final<|message|>"
+        idx = chat_blob.rfind(token)
+        if idx == -1:
+            return ""
+        content = chat_blob[idx + len(token) :]
+        for end_tok in ("<|return|>", "<|end|>", "<|start|>"):
+            stop = content.find(end_tok)
+            if stop != -1:
+                content = content[:stop]
+                break
+        return content.strip()
+
+    if not summary_seq:
+        final_text = _extract_final_from_responses(entry.get("responses"))
+        if final_text:
+            summary_seq = [final_text]
+
     summary_block = format_summary(summary_seq)
 
     response_sections = path_blocks + ([summary_block] if summary_block else [])

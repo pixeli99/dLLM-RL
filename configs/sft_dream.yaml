@@ -12,7 +12,7 @@ model:
 
 # sft dataset
 dataset:
-    optimization_data: "parathinker_math_sft" # processed by data/prepare_think_sft.py
+    optimization_data: "sft_math8k" # processed by data/prepare_think_sft.py
 
 training:
     gradient_checkpointing_enable: True # MUST be True for such long sequences
@@ -26,12 +26,12 @@ training:
     method: "random_masking" # "random_masking""semi-ar""ar" 3 different methods to choose
     lower_p: 0.1
     upper_p: 0.9
-    block_size: 16 # use for semi-ar
+    block_size: 128 # use for semi-ar
     use_block_mask: False # Enable block-level masking for structured think data
     mask_times_per_sample: 35 # for random_masking
     post_num: 0 # number of pad token need to be trained for each data point
-    max_gen_length: 8192 # Adjusted based on data analysis (covers ~80% of data)
-    max_prompt_len: 1024
+    max_gen_length: 2048 # Adjusted based on data analysis (covers ~80% of data)
+    max_prompt_len: 512
 
 
 
@@ -60,12 +60,6 @@ tokenizer:
       - '</think 2>'
       - '<think 3>'
       - '</think 3>'
-      - '<think 4>'
-      - '</think 4>'
-      - '<think 5>'
-      - '</think 5>'
-      - '<think 6>'
-      - '</think 6>'
       - '<summary>'
       - '</summary>'
       - '<delete>'

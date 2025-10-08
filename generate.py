@@ -194,3 +194,83 @@ def block_diffusion_generate(
 
     return x
 
+
+@torch.no_grad()
+def block_diffusion_generate_multi_think(
+        model,
+        prompt,
+        mask_id,
+        think_token_ids,
+        think_block_length=256,
+        num_thinks=3,
+        gen_length=1024,
+        temperature=1.0,
+        top_k=0,
+        top_p=1.0
+    ):
+
+    model.eval()
+
+    if num_thinks != len(think_token_ids):
+        raise ValueError("num_thinks must match length of think_token_ids")
+
+    input_ids = prompt['input_ids']
+    prompt_length = input_ids.shape[1]
+
+    total_think_tokens = think_block_length * num_thinks
+    if gen_length < total_think_tokens:
+        raise ValueError("gen_length too small to accommodate think blocks")
+
+    total_length = prompt_length + total_think_tokens
+
+    device = model.device
+
+    x = torch.full(
+        (1, total_length),
+        mask_id,
+        dtype=torch.long,
+        device=device
+    )
+    x[:, :prompt_length] = input_ids
+
+    block_starts = []
+    cursor = prompt_length
+    for idx in range(num_thinks):
+        x[:, cursor] = think_token_ids[idx]
+        block_starts.append(cursor)
+        cursor += think_block_length
+
+    block_positions = [start + 1 for start in block_starts]
+    block_ends = [start + think_block_length for start in block_starts]
+
+    steps = 0
+    max_steps = think_block_length - 1
+
+    while steps < max_steps:
+        positions_to_fill = []
+        for block_idx in range(num_thinks):
+            pos = block_positions[block_idx]
+            if pos < block_ends[block_idx]:
+                positions_to_fill.append((block_idx, pos))
+
+        if not positions_to_fill:
+            break
+
+        logits = model(x, use_cache=False).logits
+
+        for block_idx, pos in positions_to_fill:
+            token_logits = logits[:, pos, :]
+            if temperature != 1.0:
+                token_logits = token_logits / temperature
+            if top_k > 0:
+                token_logits = top_k_logits(token_logits, top_k)
+            if top_p < 1.0:
+                token_logits = top_p_logits(token_logits, top_p)
+            probs = torch.softmax(token_logits, dim=-1)
+            sampled_token = torch.multinomial(probs, num_samples=1)
+            x[:, pos] = sampled_token.squeeze(-1)
+            block_positions[block_idx] += 1
+
+        steps += 1
+
+    return x
