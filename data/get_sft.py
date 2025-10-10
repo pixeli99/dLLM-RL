@@ -1,7 +1,8 @@
 import json
 # assume you have downloaded this data
-with open("./math8k.json", 'r') as f:
-    data = json.load(f)
+# Read JSONL (one JSON object per line)
+with open("/zju_0038/pengxiang/data_gen/out.jsonl", 'r', encoding='utf-8') as f:
+    data = [json.loads(line) for line in f if line.strip()]
 print(len(data))
 
 from jinja2 import Template
@@ -25,32 +26,19 @@ eos_token = "<|im_end|>"
 
 
 def get_prompt(data_i):
-    return Template(system_prompts).render(problem = data_i["prompt"])
+    return Template(system_prompts).render(problem = data_i["question"])
 processed_data = []
 for i in range(len(data)):
     processed_data.append(
         {
             "prompt": get_prompt(data[i]),
-            "response": data[i]["response"] + eos_token
+            "response": data[i]["packed"] + eos_token
         }
     )
 len(processed_data)
 
-
-def get_prompt(data_i):
-    return Template(system_prompts).render(problem = data_i["prompt"])
-processed_data = []
-for i in range(len(data)):
-    processed_data.append(
-        {
-            "prompt": get_prompt(data[i]),
-            "response": data[i]["response"] + eos_token
-        }
-    )
-print(len(processed_data))
-
 #with open("./sft_openr1math_dream.json", "w", encoding="utf-8") as f:
 #with open("./sft_openr1math_llada.json", "w", encoding="utf-8") as f:
 #with open("./sft_openr1math_trado.json", "w", encoding="utf-8") as f:
-with open("./sft_math8k.json", "w", encoding="utf-8") as f:
+with open("./sft_openr1.json", "w", encoding="utf-8") as f:
     json.dump(processed_data, f, indent=2, ensure_ascii=False)

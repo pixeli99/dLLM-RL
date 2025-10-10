@@ -12,11 +12,11 @@ model:
 
 # sft dataset
 dataset:
-    optimization_data: "sft_math8k" # processed by data/prepare_think_sft.py
+    optimization_data: "sft_openr1" # processed by data/prepare_think_sft.py
 
 training:
     gradient_checkpointing_enable: True # MUST be True for such long sequences
-    gradient_accumulation_steps: 1 # Increased for better gradient stability
+    gradient_accumulation_steps: 4 # Increased for better gradient stability
     batch_size_lm: 8 # Keep at 1 due to long sequences
     mixed_precision: "bf16"
     enable_tf32: True
@@ -28,7 +28,7 @@ training:
     upper_p: 0.9
     block_size: 128 # use for semi-ar
     use_block_mask: False # Enable block-level masking for structured think data
-    mask_times_per_sample: 35 # for random_masking
+    mask_times_per_sample: 2 # for random_masking
     post_num: 0 # number of pad token need to be trained for each data point
     max_gen_length: 2048 # Adjusted based on data analysis (covers ~80% of data)
     max_prompt_len: 512

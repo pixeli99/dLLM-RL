@@ -4,7 +4,7 @@
 source ../DreamOn/.venv/bin/activate
 export HF_ENDPOINT=https://hf-mirror.com
 # Set CUDA devices (optional, accelerate will handle this)
-export CUDA_VISIBLE_DEVICES=4,5,6,7
+export CUDA_VISIBLE_DEVICES=6,7
 
 # Add the project root to PYTHONPATH
 export PYTHONPATH=/zju_0038/pengxiang/dLLM-RL:$PYTHONPATH

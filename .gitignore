@@ -4,3 +4,4 @@ sft_dream/
 .venv/
 .vscode/
 trado_eval/
+data/sft_openr1.json

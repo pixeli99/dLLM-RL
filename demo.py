@@ -1,10 +1,9 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel
-from models import DreamTokenizer, DreamModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from generate import block_diffusion_generate, block_diffusion_generate_multi_think
 import torch
 
-model_name = "/zju_0038/pengxiang/dLLM-RL/sft_dream/ckpt/optimized"
-model = DreamModel.from_pretrained(model_name, trust_remote_code=True, torch_dtype=torch.bfloat16, device_map="cuda")
+model_name = "/zju_0038/pengxiang/dLLM-RL/sft_trado/ckpt/optimized"
+model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, torch_dtype="float16", device_map="cuda")
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
 problem = '''Charlie wants to sell beeswax candles. For every pound of beeswax, he can make 10 tapered candles. One pound of beeswax and the wicks cost $10.00 in supplies. If he sells each candle for $2.00 each, what is his net profit if he makes and sells 20 candles?'''
@@ -63,7 +62,7 @@ summary_output = block_diffusion_generate(
     prompt=summary_tokens,
     mask_id=tokenizer.mask_token_id,
     gen_length=256,
-    block_length=128,
+    block_length=16,
     denoising_steps=256,
     temperature=0.1,
     top_k=0,

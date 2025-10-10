@@ -795,6 +795,15 @@ def main():
                 accum_tokens = 0
                 accum_samples = 0
 
+                # optional: save checkpoint every N optimizer steps
+                try:
+                    save_steps = int(config.experiment.get("save_steps", 0))
+                except Exception:
+                    save_steps = 0
+                if save_steps and (global_step % save_steps == 0):
+                    # only main process will actually write to disk inside save_checkpoint
+                    save_checkpoint(model, tokenizer, config, accelerator, f"step-{global_step}")
+
                 optimizer.zero_grad(set_to_none=True)
 
                 del input_ids, labels, p_mask_lm
@@ -855,6 +864,31 @@ def save_checkpoint(model, tokenizer, config, accelerator, name):
             json.dump(metadata, f, indent=2)
 
         logger.info(f"Saved model + tokenizer to {save_base / name}")
+
+        # prune old step checkpoints, keep only the most recent N
+        # default to 3 if not specified
+        try:
+            keep_last_steps = int(config.experiment.get("keep_last_steps", 3))
+        except Exception:
+            keep_last_steps = 3
+        if keep_last_steps is not None and keep_last_steps > 0 and str(name).startswith("step-"):
+            step_ckpts = []
+            for d in save_base.iterdir():
+                if d.is_dir() and d.name.startswith("step-"):
+                    try:
+                        step_num = int(d.name.split("-")[1])
+                        step_ckpts.append((step_num, d))
+                    except Exception:
+                        continue
+            if len(step_ckpts) > keep_last_steps:
+                step_ckpts.sort(key=lambda x: x[0])  # oldest first
+                to_remove = step_ckpts[:-keep_last_steps]
+                for _, p in to_remove:
+                    try:
+                        shutil.rmtree(p, ignore_errors=True)
+                        logger.info(f"Removed old step checkpoint: {p.name}")
+                    except Exception as e:
+                        logger.warning(f"Failed to remove old step checkpoint {p}: {e}")
     
 
 

@@ -1,6 +1,6 @@
 wandb:
   resume: auto
-  run_id: h64zqfbq
+  run_id: aa5wekq5
 experiment:
   project: sft_dream
   num_node: 1
@@ -9,10 +9,10 @@ model:
   pretrained_model: Dream-org/Dream-v0-Instruct-7B
   optimized_name: optimized
 dataset:
-  optimization_data: sft_math8k
+  optimization_data: sft_openr1
 training:
   gradient_checkpointing_enable: true
-  gradient_accumulation_steps: 1
+  gradient_accumulation_steps: 4
   batch_size_lm: 8
   mixed_precision: bf16
   enable_tf32: true
@@ -24,7 +24,7 @@ training:
   upper_p: 0.9
   block_size: 128
   use_block_mask: false
-  mask_times_per_sample: 35
+  mask_times_per_sample: 2
   post_num: 0
   max_gen_length: 2048
   max_prompt_len: 512
